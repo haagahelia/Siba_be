@@ -43,7 +43,7 @@ allocation.get("/:id/rooms", (req,res) => {
         dbErrorHandler(res, err, "Oops! Nothing came through - Allocation getById");   
     }) });
 
-/* Get all allocation rooms by allocationId and program.id */
+/* Get all allocated rooms by allocationId and program.id */
 
 allocation.get("/:id/program/rooms2", async (req, res) => {
     const id = req.params.id;
