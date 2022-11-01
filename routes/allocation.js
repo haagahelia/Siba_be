@@ -1,6 +1,6 @@
 const express = require("express");
 const allocation = express.Router();
-const db = require("../db/index");
+// const db = require("../db/index");
 const { dbErrorHandler, successHandler } = require("../responseHandler/index");
 
 const programService = require("../services/program");
@@ -43,12 +43,30 @@ allocation.get("/:id/rooms", (req,res) => {
         dbErrorHandler(res, err, "Oops! Nothing came through - Allocation getById");   
     }) });
 
+/* Get all allocation rooms by allocationId and program.id */
+
+allocation.get("/:id/program/rooms2", async (req, res) => {
+    const id = req.params.id;
+    programService.getAll()
+    .then(async programs => {
+        for (let [index, program] of programs.entries()) {
+            programs[index] = {...program, 'rooms': await allocationService.getAllocatedRoomsByProgram(program.id, id)}
+         }
+         return programs;
+    })
+    .then(data => {
+        successHandler(res, data, "getRoomsByProgram succesful - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Nothing came through - Allocation");
+    });
+})
+
 
 
     /* ALL BELOW THIS IN PROGRESS */
-
-/* Test parser with Json Object */
-
+/*
+// Test parser with Json Object 
 const jsonParser = (list, property) => {
     try {
         for (let [index, object] of list.entries()) {
@@ -62,7 +80,9 @@ const jsonParser = (list, property) => {
 };
 
 
-/* Allocation rooms by program */
+
+
+// Allocation rooms by program 
 allocation.get("/:id/program/rooms", (req, res) => {
     const id = req.params.id;
     const sqlQuery = 
@@ -95,8 +115,7 @@ allocation.get("/:id/program/rooms", (req, res) => {
 
 });
 
-/* TESTING */
-
+// TESTING 
 
 
 const getRoomsQuery = (program) => {
@@ -118,24 +137,8 @@ const getRoomsQuery = (program) => {
 }
 
 
-allocation.get("/test2/2", async (req, res) => {
-    programService.getAll()
-    .then(programs => {
-        let returnData = [];
-        for(let [index, program] of programs.entries()) {
-            programs[index] = {...program, 'rooms': allocationService.getAllocatedRoomsByProgram(3001, 10002)}
-         }
-         console.log(returnData);
-    })
-    .catch(err => {
-        dbErrorHandler(res, err, "Oops! Nothing came through - Allocation");
-    });
-    
 
-    res.status(200).send();
-})
-
-/* Allocation rooms by program - with json_object select */
+// Allocation rooms by program - with json_object select 
 
 allocation.get("/test/", (req, res) => {
     const sqlQuery = `
@@ -166,6 +169,8 @@ allocation.get("/test/", (req, res) => {
         }
     })
 })
+
+*/
 
 
 
