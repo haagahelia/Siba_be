@@ -60,16 +60,43 @@ allocation.get("/:id/rooms", (req,res) => {
         dbErrorHandler(res, err, "Oops! Nothing came through - Allocation getById");   
     }) });
 
-/* Get all allocated rooms by allocationId and program.id */
+/* Get all allocated rooms in programs by allocationId and program */
 
-allocation.get("/:id/program/all/rooms", async (req, res) => {
+allocation.get("/:id/program/rooms", async (req, res) => {
     const id = req.params.id;
     programService.getAll()
     .then(async programs => {
         for (let [index, program] of programs.entries()) {
-            programs[index] = {...program, 'rooms': await allocationService.getAllocatedRoomsByProgram(program.id, id)}
+            programs[index] = 
+                {...program, 
+                    'rooms': await allocationService.getAllocatedRoomsByProgram(program.id, id),
+                    'subjects' : await allocationService.getSubjectsByProgram(id, program.id)
+                }
          }
          return programs;
+    })
+    .then(data => {
+        successHandler(res, data, "getRoomsByProgram succesful - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Nothing came through - Allocation");
+    });
+})
+
+/* Get all allocated rooms by ProgramId, allocRound */
+allocation.get("/:id/program/:programId/rooms", async (req, res) => {
+    const allocId = req.params.id;
+    const programId = req.params.programId;
+    programService.getById(programId)
+    .then(async program => {
+    if(program[0]){
+        program[0] = {
+            ...program[0],
+            'rooms': await allocationService.getAllocatedRoomsByProgram(programId, allocId),
+            'subjects' : await allocationService.getSubjectsByProgram(allocId, programId)
+        }
+    }
+    return program;
     })
     .then(data => {
         successHandler(res, data, "getRoomsByProgram succesful - Allocation");
