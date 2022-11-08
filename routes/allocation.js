@@ -106,6 +106,24 @@ allocation.get("/:id/program/:programId", async (req, res) => {
     });
 })
 
+/* Reset allocation = remove all subjects from allocSpace and reset isAllocated, prioritynumber and cantAllocate in allocSubject */
+allocation.post("/reset", (req, res) => {
+    const allocRound = req.body.allocRound;
+    if(!allocRound) {
+        return validationErrorHandler(res, "Missing required parameter - allocation reset");
+    }
+    allocationService.deleteAllSpacesInAllocRound(allocRound)
+    .then(
+        allocationService.resetAllocSubject(allocRound)
+    )
+    .then(() => {
+        successHandler(res, "reset completed", "Allocation reset completed - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Allocation reset failed - Allocation");   
+    })
+})
+
 // Allokointilaskennan aloitus - KESKEN!
 allocation.post("/start", (req, res) => {
     const allocRound = req.body.allocRound;
@@ -116,17 +134,17 @@ allocation.post("/start", (req, res) => {
     allocationService.getPriorityOrder(allocRound) // "laskee" prioriteettijärjestyksen
     .then(async data => { // merkitsee prioriteettinumerot allocSubjecteihin
         await Promise.all(data.map((subject, index) => allocationService.updateAllocSubjectPriority(subject.subjectId, subject.allocRound, index +1)));
-    })
-    .then(() => {
-        res.status(200).send("done");
+        return data;
     })
     .then(data => {
         for(ob of data) {
             console.log(ob);
         }
-    }
-
-    )
+        console.log("");
+    })
+    .then(() => {
+        successHandler(res, "Allocation completed", "Allocation succesful - Allocation");
+    })
     .catch(err => {
         dbErrorHandler(res, err, "Oops! Allocation failed - Allocation start");   
     })
