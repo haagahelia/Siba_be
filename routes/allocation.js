@@ -135,13 +135,12 @@ allocation.post("/start", (req, res) => {
         await Promise.all(data.map((subject, index) => allocationService.updateAllocSubjectPriority(subject.subjectId, subject.allocRound, index +1)));
         return data;
     })
-    .then(async data => { // Etsii opetukselle sopivat tilat
-        console.log(await Promise.all(data.map((ob) => {
-             return allocationService.findRoomsForSubject(ob.subjectId)
+    .then(async data => { // Etsii opetukselle sopivat tilat ja tallentaa ne allocSubjectSuitableSpace tauluun
+        return await Promise.all(data.map((subject) => {
+             return allocationService.findRoomsForSubject(allocRound, subject.subjectId)
             })
-        ))
+        )
     })
-    
     .then(() => {
         successHandler(res, "Allocation completed", "Allocation succesful - Allocation");
     })
