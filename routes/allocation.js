@@ -113,9 +113,8 @@ allocation.post("/reset", (req, res) => {
         return validationErrorHandler(res, "Missing required parameter - allocation reset");
     }
     allocationService.deleteAllSpacesInAllocRound(allocRound)
-    .then(
-        allocationService.resetAllocSubject(allocRound)
-    )
+    .then(allocationService.resetAllocSubject(allocRound))
+    .then(allocationService.deleteSuitableSpaces(allocRound))
     .then(() => {
         successHandler(res, "reset completed", "Allocation reset completed - Allocation");
     })
