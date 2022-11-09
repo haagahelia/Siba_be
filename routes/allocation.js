@@ -62,7 +62,7 @@ allocation.get("/:id/rooms", (req,res) => {
 
 /* Get all allocated rooms in programs by allocationId and program */
 
-allocation.get("/:id/program/", async (req, res) => {
+allocation.get("/:id/program", async (req, res) => {
     const id = req.params.id;
     programService.getAll()
     .then(async programs => {
@@ -126,6 +126,7 @@ allocation.post("/reset", (req, res) => {
 // Allokointilaskennan aloitus - KESKEN!
 allocation.post("/start", async (req, res) => {
     const allocRound = req.body.allocRound;
+    console.time("start");
     if(!allocRound) {
         return validationErrorHandler(res, "Missing required parameter - allocation start");
     }
@@ -136,12 +137,25 @@ allocation.post("/start", async (req, res) => {
         return data;
     })
     .then(async data => { // Etsii opetukselle sopivat tilat ja tallentaa ne allocSubjectSuitableSpace tauluun
-        return await Promise.all(data.map((subject) => {
+        await Promise.all(data.map((subject) => {
              return allocationService.findRoomsForSubject(allocRound, subject.subjectId)
+            })
+        )
+        return data;
+    })
+    .then(async data => {
+        return await Promise.all(data.map(async (subject) => { // Asettaa montako varustetta puuttuu tilasta. PITÄÄ TEHDÄ PAREMPI!
+                const suitableRooms = await allocationService.getSuitableRoomsForSubject(allocRound, subject.subjectId);
+                await suitableRooms.map(async (room) => {
+                    const missingItemAmount = await allocationService.getMissingItemAmount(subject.subjectId, room.spaceId);
+                    await allocationService.setMissingItemAmount(subject.subjectId, room.spaceId, missingItemAmount[0].missingItems)
+                    .catch(e => console.log(e));
+                })
             })
         )
     })
     .then(() => {
+        console.timeEnd("start");
         successHandler(res, "Allocation completed", "Allocation succesful - Allocation");
     })
     .catch(err => {
