@@ -124,13 +124,13 @@ allocation.post("/reset", (req, res) => {
 })
 
 // Allokointilaskennan aloitus - KESKEN!
-allocation.post("/start", (req, res) => {
+allocation.post("/start", async (req, res) => {
     const allocRound = req.body.allocRound;
     if(!allocRound) {
         return validationErrorHandler(res, "Missing required parameter - allocation start");
     }
 
-    allocationService.getPriorityOrder(allocRound) // "laskee" prioriteettijärjestyksen
+    await allocationService.getPriorityOrder(allocRound) // "laskee" prioriteettijärjestyksen
     .then(async data => { // merkitsee prioriteettinumerot allocSubjecteihin
         await Promise.all(data.map((subject, index) => allocationService.updateAllocSubjectPriority(subject.subjectId, subject.allocRound, index +1)));
         return data;

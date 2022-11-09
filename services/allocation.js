@@ -216,7 +216,6 @@ const findRoomsForSubject = (allocRound, subjectId) => {
                     AND sp.area >= (SELECT s.area FROM Subject s WHERE id=${db.escape(subjectId)})
                     AND sp.spaceTypeId = (SELECT s.spaceTypeId FROM Subject s WHERE id=${db.escape(subjectId)})
                     AND sp.inUse=1
-                    ORDER BY sp.area ASC, sp.personLimit ASC
                     `
     return new Promise((resolve, reject) => {
         db.query(sqlQuery, (err,result) => {
