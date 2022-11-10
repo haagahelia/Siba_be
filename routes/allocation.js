@@ -107,14 +107,12 @@ allocation.get("/:id/program/:programId", async (req, res) => {
 })
 
 /* Reset allocation = remove all subjects from allocSpace and reset isAllocated, prioritynumber and cantAllocate in allocSubject */
-allocation.post("/reset", (req, res) => {
+allocation.post("/reset", async (req, res) => {
     const allocRound = req.body.allocRound;
     if(!allocRound) {
         return validationErrorHandler(res, "Missing required parameter - allocation reset");
     }
-    allocationService.deleteAllSpacesInAllocRound(allocRound)
-    .then(allocationService.resetAllocSubject(allocRound))
-    .then(allocationService.deleteSuitableSpaces(allocRound))
+    allocationService.resetAllocation(allocRound)
     .then(() => {
         successHandler(res, "reset completed", "Allocation reset completed - Allocation");
     })
