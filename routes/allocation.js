@@ -121,24 +121,37 @@ allocation.get("/:id/rooms/:subjectId", async (req, res) => {
 
 allocation.get("/:id/subject/unallocated", async (req, res) => {
     const allocId = req.params.id;
-    const subjects = await allocationService.getUnAllocableSubjects(allocId);
-
-    successHandler(res, subjects, "Unallocated subjects returned - Allocation");
+    await allocationService.getUnAllocableSubjects(allocId)
+    .then(data => {
+        successHandler(res, data, "Unallocated subjects returned - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failure - unAllocated");   
+    })
 })
 
 allocation.get("/subject/:id/rooms", async (req, res) => {
     const subjectId = req.params.id;
-    const rooms = await allocationService.getSpacesForSubject(subjectId);
-
-    successHandler(res, rooms, "Rooms for subject - Allocation");
+    await allocationService.getSpacesForSubject(subjectId)
+    .then(data => {
+        successHandler(res, data, "Get Spaces for subject - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failed get spaces for subject - unAllocated");   
+    })
 })
 
-allocation.get("/missingequipment/subject/:subid/room/:roomid", async (req, res) => {
+// eqpt = equipment
+allocation.get("/missing-eqpt/subject/:subid/room/:roomid", async (req, res) => {
     const subjectId = req.params.subid;
     const spaceId = req.params.roomid;
-    const equipment = await allocationService.getMissingEquipmentForRoom(subjectId, spaceId);
-
-    successHandler(res, equipment, "Missing Equipment for Room - Allocation");
+    await allocationService.getMissingEquipmentForRoom(subjectId, spaceId)
+    .then(data => {
+        successHandler(res, data, "Missing Equipment for Room - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failed get equipments for the room - Allocation");   
+    })
 })
 
 /* Reset allocation = remove all subjects from allocSpace and reset isAllocated, prioritynumber and cantAllocate in allocSubject */
