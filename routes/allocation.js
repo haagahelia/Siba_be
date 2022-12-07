@@ -102,6 +102,39 @@ allocation.get("/:id/rooms/:subjectId", async (req, res) => {
     return rooms;
 })
 
+allocation.get("/:id/subject/unallocated", async (req, res) => {
+    const allocId = req.params.id;
+    await allocationService.getUnAllocableSubjects(allocId)
+    .then(data => {
+        successHandler(res, data, "Unallocated subjects returned - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failure - unAllocated");   
+    })
+})
+
+allocation.get("/subject/:id/rooms", async (req, res) => {
+    const subjectId = req.params.id;
+    await allocationService.getSpacesForSubject(subjectId)
+    .then(data => {
+        successHandler(res, data, "Get Spaces for subject - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failed get spaces for subject - unAllocated");   
+    })
+})
+
+// eqpt = equipment
+allocation.get("/missing-eqpt/subject/:subid/room/:roomid", async (req, res) => {
+    const subjectId = req.params.subid;
+    const spaceId = req.params.roomid;
+    await allocationService.getMissingEquipmentForRoom(subjectId, spaceId)
+    .then(data => {
+        successHandler(res, data, "Missing Equipment for Room - Allocation");
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Failed get equipments for the room - Allocation");   
+    })
 /* Get all allocated rooms by RoomId, allocRound */
 allocation.get("/:id/subjects/:roomId", async (req, res) => {
     const allocId = req.params.id;
