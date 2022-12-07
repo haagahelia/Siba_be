@@ -340,6 +340,6 @@ module.exports = {
     getAllocatedRoomsBySubject,
     getUnAllocableSubjects,
     getSpacesForSubject,
-    getMissingEquipmentForRoom
+    getMissingEquipmentForRoom,
     getAllocatedSubjectsByRoom
 }
