@@ -113,8 +113,8 @@ allocation.get("/:id/rooms/:subjectId", async (req, res) => {
     const rooms = await allocationService.getAllocatedRoomsBySubject(subjectId, allocId);
     
     rooms ?  
-        successHandler(res, rooms, "getRoomsBySubject succesful - Allocation") :
-        dbErrorHandler(res, rooms, "Oops! Nothing came through - Allocation");
+    successHandler(res, rooms, "getRoomsBySubject succesful - Allocation") :
+    dbErrorHandler(res, rooms, "Oops! Nothing came through - Allocation");
 
     return rooms;
 })
