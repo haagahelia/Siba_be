@@ -21,24 +21,6 @@ allocation.get("", (req, res)=>{
 
 allocation.get("/:id", async (req, res)=>{
     await allocationService.getById(req.params.id)
-    .then(async data => {
-        return data[0] = {
-            ...data[0], 
-            "subjects" : await allocationService.getAllSubjectsById(data[0].id),
-            "rooms" : await allocationService.getRoomsByAllocId(data[0].id)
-        };
-    })
-    .then(async data => {
-        await Promise.all(
-            data.subjects.map(async (subject, index) => {
-                data.subjects[index] = {...subject, "rooms" : await allocationService.getRoomsBySubjectAndAllocRound(subject.id, data.id)}
-            }),
-            data.rooms.map(async (room, index) => {
-                data.rooms[index] = {...room, "subjects" : await allocationService.getSubjectsByAllocRoundAndSpaceId(data.id, room.id)}
-            })
-        )
-        return data;
-    })
     .then(data => {
         successHandler(res, data, "getById succesful - Allocation");
     })
@@ -46,7 +28,6 @@ allocation.get("/:id", async (req, res)=>{
         dbErrorHandler(res, err, "Oops! Nothing came through - Allocation getById");   
     })  
 })
-
 
 /* Get rooms with allocated hours by allocationId */
 
@@ -110,11 +91,13 @@ allocation.get("/:id/program/:programId", async (req, res) => {
 allocation.get("/:id/rooms/:subjectId", async (req, res) => {
     const allocId = req.params.id;
     const subjectId = req.params.subjectId;
-    const rooms = await allocationService.getAllocatedRoomsBySubject(subjectId, allocId);
-    
-    rooms ?  
-    successHandler(res, rooms, "getRoomsBySubject succesful - Allocation") :
-    dbErrorHandler(res, rooms, "Oops! Nothing came through - Allocation");
+    const rooms = await allocationService.getAllocatedRoomsBySubject(subjectId, allocId)
+    .then(rooms => {
+        successHandler(res, rooms, "getRoomsBySubject succesful - Allocation")
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Allocation reset failed - Allocation");   
+    })
 
     return rooms;
 })
@@ -152,6 +135,21 @@ allocation.get("/missing-eqpt/subject/:subid/room/:roomid", async (req, res) => 
     .catch(err => {
         dbErrorHandler(res, err, "Oops! Failed get equipments for the room - Allocation");   
     })
+/* Get all allocated rooms by RoomId, allocRound */
+allocation.get("/:id/subjects/:roomId", async (req, res) => {
+    const allocId = req.params.id;
+    const roomId = req.params.roomId;
+    const subjects = 
+    
+    await allocationService.getAllocatedSubjectsByRoom(roomId, allocId)
+    .then(subs => {
+        successHandler(res, subs, "getAllocatedSubjectsByRoom succesful - Allocation")
+    })
+    .catch(err => {
+        dbErrorHandler(res, err, "Oops! Allocation reset failed - Allocation");   
+    })
+
+    return subjects;
 })
 
 /* Reset allocation = remove all subjects from allocSpace and reset isAllocated, prioritynumber and cantAllocate in allocSubject */
