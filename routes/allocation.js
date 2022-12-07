@@ -135,6 +135,8 @@ allocation.get("/missing-eqpt/subject/:subid/room/:roomid", async (req, res) => 
     .catch(err => {
         dbErrorHandler(res, err, "Oops! Failed get equipments for the room - Allocation");   
     })
+})
+
 /* Get all allocated rooms by RoomId, allocRound */
 allocation.get("/:id/subjects/:roomId", async (req, res) => {
     const allocId = req.params.id;
