@@ -247,6 +247,21 @@ const resetAllocation = (allocRound) => {
     })
 }
 
+/* ABORT ALLOCATION - Procedure in database */
+const abortAllocation = (allocRound) => {
+    const sqlQuery = "CALL abortAllocation(?)";
+
+    return new Promise((resolve, reject) => {
+        db.query(sqlQuery, allocRound, (err, result) => {
+            if(err) {
+                return reject(err);
+            }else {
+                resolve(result);
+            }
+        })    
+    })
+}
+
 const getSuitableRoomsForSubject = (allocRound, subject) => {
     const sqlQuery = "SELECT * FROM AllocSubjectSuitableSpace ass WHERE ass.allocRound = ? AND ass.subjectId = ?;"
     return new Promise((resolve, reject) => {
@@ -341,5 +356,6 @@ module.exports = {
     getUnAllocableSubjects,
     getSpacesForSubject,
     getMissingEquipmentForRoom,
-    getAllocatedSubjectsByRoom
+    getAllocatedSubjectsByRoom,
+    abortAllocation
 }
