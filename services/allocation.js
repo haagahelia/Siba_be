@@ -294,7 +294,6 @@ module.exports = {
     getAllocatedRoomsByProgram,
     startAllocation,
     resetAllocation,
-    getSuitableRoomsForSubject,
     getAllocatedRoomsBySubject,
     getUnAllocableSubjects,
     getSpacesForSubject,
