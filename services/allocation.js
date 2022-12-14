@@ -67,28 +67,6 @@ const getAllSubjectsById = (id) => {
     })
 }
 
-/* Get all subjects in space by allocRoundId and SpaceId*/
-
-const getSubjectsByAllocRoundAndSpaceId = (allocRound, spaceId) => {
-    const sqlQuery = `
-    SELECT 
-    	s.id, 
-    	s.name, 
-    	CAST((TIME_TO_SEC(al_sp.totalTime) / 3600) AS DECIMAL(10,1)) AS "allocatedHours"
-    FROM AllocSpace al_sp
-    INNER JOIN Subject s ON al_sp.subjectId = s.id 
-    WHERE al_sp.allocRound = ? AND al_sp.spaceId = ?;`
-    return new Promise((resolve, reject) => {
-        db.query(sqlQuery, [allocRound, spaceId], (err, result) => {
-            if(err){
-                return reject(err);
-            } else {
-                resolve(result);
-            }
-        })
-    })
-}
-
 /* Get rooms by Subject and AllocRound */
 
 const getRoomsBySubjectAndAllocRound = (subjectId, allocRound) => {
@@ -344,7 +322,6 @@ module.exports = {
     getAll,
     getById,
     getAllSubjectsById,
-    getSubjectsByAllocRoundAndSpaceId,
     getRoomsBySubjectAndAllocRound,
     getRoomsByAllocId,
     getSubjectsByProgram,
