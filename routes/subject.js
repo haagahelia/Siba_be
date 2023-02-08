@@ -1,14 +1,14 @@
-import express from 'express';
-import db from '../db/index.js';
-import logger from '../utils/logger.js';
+import express from "express";
+import db from "../db/index.js";
+import logger from "../utils/logger.js";
 import {
   dbErrorHandler,
   successHandler,
   requestErrorHandler,
   validationErrorHandler,
-} from '../responseHandler/index.js';
-import { validationResult } from 'express-validator'; //import { body,}???
-import { validateAddUpdateSubject } from '../validationHandler/index.js';
+} from "../responseHandler/index.js";
+import { validationResult } from "express-validator"; //import { body,}???
+import { validateAddUpdateSubject } from "../validationHandler/index.js";
 
 const subject = express.Router();
 
@@ -70,18 +70,18 @@ subject.post("/post", validateAddUpdateSubject, (req, res) => {
     ],
     (err, result) => {
       if (!result) {
-        requestErrorHandler(res, err, "Nothing to insert");
+        requestErrorHandler(res, err + "Nothing to insert");
       } else if (err) {
         dbErrorHandler(res, err, "Oops! Create failed - Subject");
       } else {
         successHandler(
           res,
           { insertId: result.insertId },
-          "Create successful - Subject",
+          "Create successful - Subject"
         );
         logger.info(`Subject ${req.body.name} created`);
       }
-    },
+    }
   );
 });
 
@@ -134,14 +134,14 @@ subject.put("/update", validateAddUpdateSubject, (req, res) => {
     ],
     (err, result) => {
       if (!result) {
-        requestErrorHandler(res, err, "Nothing to update");
+        requestErrorHandler(res, `${err} Nothing to update`);
       } else if (err) {
         dbErrorHandler(res, err, "Oops! Update failed - Subject");
       } else {
         successHandler(res, result, "Update successful - Subject");
         logger.info(`Subject ${req.body.name} updated`);
       }
-    },
+    }
   );
 });
 

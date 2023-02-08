@@ -6,7 +6,7 @@ It's possible to edit the logging formats and the logging levels.
 NPM: https://www.npmjs.com/package//winston
 */
 
-import { createLogger, transports, format } from 'winston';
+import { createLogger, transports, format } from "winston";
 const LEVEL = Symbol.for("level");
 
 // Modifying the log for easier reading
@@ -14,13 +14,16 @@ const customFormat = format.combine(
   format.timestamp({ format: "YYMMDD HH:mm:ss" }),
   format.splat(),
   format.printf((info) => {
-    return `${info.timestamp}-${info.level.toLocaleUpperCase()}-${info.message}`;
-  }),
+    return `${info.timestamp}-${info.level.toLocaleUpperCase()}-${
+      info.message
+    }`;
+  })
 );
 
 // Which log levels we want to show / see
 function filterOnly(level) {
   return format(function (info, http) {
+    // @ts-ignore
     if (info[LEVEL] === level) {
       return info;
     }

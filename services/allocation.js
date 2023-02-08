@@ -1,4 +1,4 @@
-import db from '../db/index.js';
+import db from "../db/index.js";
 
 /* Get all allocations */
 
@@ -16,7 +16,7 @@ const getAll = () => {
 /* Get allocation by id */
 
 const getById = (id) => {
-  sqlQuery = `SELECT ar.id,
+  const sqlQuery = `SELECT ar.id,
 	            ar.name,
 	            ar.isSeasonAlloc,
 	            ar.description,
@@ -24,13 +24,13 @@ const getById = (id) => {
 	            ar.isAllocated, 
 	            ar.processOn,
 	            (SELECT COUNT(*) FROM AllocSubject WHERE AllocRound = ${db.escape(
-                id,
+                id
               )}) AS 'Subjects',
 	            (SELECT COUNT(*) FROM AllocSubject WHERE isAllocated = 1 AND AllocRound = ${db.escape(
-                id,
+                id
               )}) AS 'allocated',
 	            (SELECT COUNT(*) FROM AllocSubject WHERE isAllocated = 0 AND AllocRound = ${db.escape(
-                id,
+                id
               )}) AS 'unAllocated'
 	            FROM AllocRound ar 
 	            WHERE ar.id=${db.escape(id)}`;
@@ -270,7 +270,7 @@ const getSpacesForSubject = (subjectId) => {
       (err, result) => {
         if (err) return reject(err);
         resolve(result);
-      },
+      }
     );
   });
 };

@@ -11,8 +11,8 @@ const databaseConfigObject = {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      debug: process.env.DB_DEBUG || false,
-      multipleStatements: process.env.DB_MULTIPLE_STATEMENTS || true,
+      debug: process.env.DB_DEBUG,
+      multipleStatements: true,
     },
     pool: {
       min: Number(process.env.DB_CONNECTION_POOL_MIN) || 0,

@@ -1,16 +1,14 @@
-import express from 'express';
-import db from '../db/index.js';
-import logger from '../utils/logger.js';
+import express from "express";
+import db from "../db/index.js";
+import logger from "../utils/logger.js";
 import {
   dbErrorHandler,
   successHandler,
   requestErrorHandler,
   validationErrorHandler,
-} from '../responseHandler/index.js';
-import { validationResult } from 'express-validator';// import { body,} ??
-import {
-  validateAddUpdateSubjectEquipment,
-} from '../validationHandler/index.js';
+} from "../responseHandler/index.js";
+import { validationResult } from "express-validator"; // import { body,} ??
+import { validateAddUpdateSubjectEquipment } from "../validationHandler/index.js";
 
 const subjectequipment = express.Router();
 
@@ -51,23 +49,23 @@ subjectequipment.post(
       [subjectId, equipmentId, priority, obligatory],
       (err, result) => {
         if (!result) {
-          requestErrorHandler(res, err, "Nothing to insert");
+          requestErrorHandler(res, `${err} Nothing to insert`);
         } else if (err) {
           dbErrorHandler(res, err, "Oops! Create failed - SubjectEquipment");
         } else {
           successHandler(
             res,
             { insertId: result.insertId },
-            "Create successful - SubjectEquipment",
+            "Create successful - SubjectEquipment"
           );
           logger.info(
             `SubjectEquipment created subjectId ${req.body.subjectId} &
-              ${req.body.equipmentId}`,
+              ${req.body.equipmentId}`
           );
         }
-      },
+      }
     );
-  },
+  }
 );
 
 // Removing an equipment requirement from a subject
@@ -109,16 +107,16 @@ subjectequipment.put(
       [priority, obligatory, subjectId, equipmentId],
       (err, result) => {
         if (!result) {
-          requestErrorHandler(res, err, "Nothing to update");
+          requestErrorHandler(res, `${err} Nothing to update`);
         } else if (err) {
           dbErrorHandler(res, err, "Oops! Update failed - SubjectEquipment");
         } else {
           successHandler(res, result, "Update successful - SubjectEquipment");
           logger.info("SubjectEquipment ", req.body.subjectId, " updated");
         }
-      },
+      }
     );
-  },
+  }
 );
 
 export default subjectequipment;
