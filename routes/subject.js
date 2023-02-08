@@ -70,18 +70,18 @@ subject.post("/post", validateAddUpdateSubject, (req, res) => {
     ],
     (err, result) => {
       if (!result) {
-        requestErrorHandler(res, err + "Nothing to insert");
+        requestErrorHandler(res, `${err}Nothing to insert`);
       } else if (err) {
         dbErrorHandler(res, err, "Oops! Create failed - Subject");
       } else {
         successHandler(
           res,
           { insertId: result.insertId },
-          "Create successful - Subject"
+          "Create successful - Subject",
         );
         logger.info(`Subject ${req.body.name} created`);
       }
-    }
+    },
   );
 });
 
@@ -141,7 +141,7 @@ subject.put("/update", validateAddUpdateSubject, (req, res) => {
         successHandler(res, result, "Update successful - Subject");
         logger.info(`Subject ${req.body.name} updated`);
       }
-    }
+    },
   );
 });
 

@@ -41,10 +41,10 @@ building.delete("/:id", (req, res) => {
         successHandler(
           res,
           rowsAffected,
-          "Delete succesfull! Count of deleted rows: " + rowsAffected
+          `Delete succesfull! Count of deleted rows: ${rowsAffected}`,
         );
       } else {
-        requestErrorHandler(res, "Invalid category id:" + req.params.id);
+        requestErrorHandler(res, `Invalid category id:${req.params.id}`);
       }
     })
     .catch((error) => {

@@ -1,4 +1,4 @@
-import logger from '../utils/logger.js';
+import logger from "../utils/logger.js";
 
 const serverErrorMessage = "Server error.";
 const requestErrorMessage = "Request error";
@@ -22,9 +22,9 @@ export const successHandler = (res, data, message) => {
     message = successMessage;
   }
   logger.http(message);
-  
-  if(typeof(data)==="number") {
-    data = {returnedNumberValue:data}   // If data is just a number, wrapping an object around it
+
+  if (typeof data === "number") {
+    data = { returnedNumberValue: data }; // If data is just a number, wrapping an object around it
   }
 
   res.status(200).send(data);
@@ -44,6 +44,6 @@ export const validationErrorHandler = (res, message) => {
     message = validationErrorMessage;
   }
   logger.error(message);
-  
+
   res.status(400).send(validationErrorMessage);
 };

@@ -5,7 +5,7 @@
   https://express-validator.github.io/docs/
 */
 
-import {check } from 'express-validator';   //import { body, validationResult,} ???
+import { check } from "express-validator"; //import { body, validationResult,} ???
 
 /* ---- SUBJECT ---- */
 export const validateAddUpdateSubject = [

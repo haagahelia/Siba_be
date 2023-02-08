@@ -1,7 +1,11 @@
-import express from 'express';
-import {dbErrorHandler, successHandler, validationErrorHandler} from '../responseHandler/index.js';
-import programService from '../services/program.js';
-import allocationService from '../services/allocation.js';
+import express from "express";
+import {
+  dbErrorHandler,
+  successHandler,
+  validationErrorHandler,
+} from "../responseHandler/index.js";
+import programService from "../services/program.js";
+import allocationService from "../services/allocation.js";
 
 const allocation = express.Router();
 

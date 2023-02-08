@@ -56,16 +56,16 @@ subjectequipment.post(
           successHandler(
             res,
             { insertId: result.insertId },
-            "Create successful - SubjectEquipment"
+            "Create successful - SubjectEquipment",
           );
           logger.info(
             `SubjectEquipment created subjectId ${req.body.subjectId} &
-              ${req.body.equipmentId}`
+              ${req.body.equipmentId}`,
           );
         }
-      }
+      },
     );
-  }
+  },
 );
 
 // Removing an equipment requirement from a subject
@@ -114,9 +114,9 @@ subjectequipment.put(
           successHandler(res, result, "Update successful - SubjectEquipment");
           logger.info("SubjectEquipment ", req.body.subjectId, " updated");
         }
-      }
+      },
     );
-  }
+  },
 );
 
 export default subjectequipment;

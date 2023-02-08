@@ -1,4 +1,4 @@
-import db from '../db/index.js';
+import db from "../db/index.js";
 
 const getAll = () => {
   const sqlQuery = "SELECT p.id, p.name FROM Program p;";
