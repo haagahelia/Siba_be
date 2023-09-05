@@ -11,7 +11,7 @@ import { createLogger, transports, format } from 'winston';
 
 // Modifying the log for easier reading
 const customFormat = format.combine(
-  format.timestamp({ format: 'YYYYMMDD|HH:mm:ss' }),
+  format.timestamp({ format: 'YYYY-MM-DD|HH:mm:ss' }),
   format.splat(),
   format.printf((info) => {
     return `${
@@ -42,7 +42,10 @@ const logger = createLogger({
       filename: './logs/app.log',
       level: 'verbose',
     }),
-    new transports.File({ filename: './logs/error.log', level: 'error' }),
+    new transports.File({
+      filename: './logs/error.log',
+      level: 'error',
+    }),
     new transports.File({
       filename: './logs/http.log',
       level: 'http',
