@@ -44,7 +44,7 @@ export const validateIdObl = [
 ];
 export const validateNameObl = [
   check('name')
-    .isLength({ min: 55, max: 255 })
+    .isLength({ min: 1, max: 255 })
     .withMessage('Must be between 55-255 characters long')
     .bail()
     .matches(/^[A-Za-zäöåÄÖÅ0-9\s-]*$/)

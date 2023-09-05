@@ -11,6 +11,14 @@
 <br />
 </div>
 
+## sala ja nimi db
+user: root
+pass: secret
+
+## start and stop db
+brew services start mariadb
+brew services stop mariadb
+
 ## Creators
 
 <p>SIBA22S Softala team</p>
