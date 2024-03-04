@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -13,6 +13,7 @@ import {
 } from '../responseHandler/index.js';
 import { Space } from '../types/custom.js';
 import logger from '../utils/logger.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import {
   validateMultiSpacePost,
@@ -20,6 +21,17 @@ import {
 } from '../validationHandler/space.js';
 
 const space = express.Router();
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
 
 // Get all spaces
 space.get(
@@ -142,7 +154,14 @@ space.get(
 // Adding a space
 space.post(
   '/',
-  [authenticator, admin, planner, roleChecker, validate],
+  [
+    authenticator,
+    admin,
+    planner,
+    roleChecker,
+    validate,
+    capitalizeFirstCharacter,
+  ],
   (req: Request, res: Response) => {
     const spaceData = {
       name: req.body.name,

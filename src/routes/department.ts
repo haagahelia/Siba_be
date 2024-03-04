@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -10,6 +10,7 @@ import {
   requestErrorHandler,
   successHandler,
 } from '../responseHandler/index.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import {
   validateDepartmentId,
   validateDepartmentPost,
@@ -18,6 +19,17 @@ import {
 import { validate, validateIdObl } from '../validationHandler/index.js';
 
 const department = express.Router();
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
 
 // get all departments
 department.get(
@@ -72,7 +84,7 @@ department.get(
 department.post(
   '/',
   validateDepartmentPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, admin, roleChecker, validate, capitalizeFirstCharacter],
   (req: Request, res: Response) => {
     db_knex('Department')
       .insert(req.body)

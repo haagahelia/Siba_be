@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -12,6 +12,7 @@ import {
   successHandler,
 } from '../responseHandler/index.js';
 import logger from '../utils/logger.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import {
   validateProgramPost,
@@ -38,6 +39,18 @@ const program = express.Router();
       });
   },
 );*/
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
+
 program.get(
   '/',
   [authenticator, admin, planner, statist, roleChecker, validate],
@@ -148,7 +161,14 @@ program.get(
 program.post(
   '/',
   validateProgramPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [
+    authenticator,
+    admin,
+    planner,
+    roleChecker,
+    validate,
+    capitalizeFirstCharacter,
+  ],
   (req: Request, res: Response) => {
     const newProgram = {
       name: req.body.name,

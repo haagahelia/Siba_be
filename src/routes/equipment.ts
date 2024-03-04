@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -10,6 +10,7 @@ import {
   requestErrorHandler,
   successHandler,
 } from '../responseHandler/index.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import {
   validateEquipmentMultiPost,
   validateEquipmentPost,
@@ -21,6 +22,18 @@ const equipment = express.Router();
 
 // Equipment id:s and name:s,
 // for a select list and for the default priority done with Knex
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
+
 equipment.get(
   '/',
   [authenticator, admin, planner, statist, roleChecker, validate],
@@ -67,7 +80,7 @@ equipment.get(
 equipment.post(
   '/',
   validateEquipmentPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, admin, planner, roleChecker, validate, capitalizeFirstLetter],
   (req: Request, res: Response) => {
     db_knex
       .insert(req.body)

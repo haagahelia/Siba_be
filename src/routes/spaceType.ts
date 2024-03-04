@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { MysqlError } from 'mysql';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
@@ -11,6 +11,7 @@ import {
   requestErrorHandler,
   successHandler,
 } from '../responseHandler/index.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import {
   validateSpaceTypeMultiPost,
@@ -20,6 +21,16 @@ import {
 
 const spaceType = express.Router();
 
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
 function handleErrorBasedOnErrno(
   req: Request,
   res: Response,
@@ -117,7 +128,7 @@ spaceType.get(
 spaceType.post(
   '/',
   validateSpaceTypePost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, admin, roleChecker, validate, capitalizeFirstCharacter],
   (req: Request, res: Response) => {
     db_knex('Spacetype')
       .insert(req.body)

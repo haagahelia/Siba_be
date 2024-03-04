@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -14,6 +14,7 @@ import {
 } from '../responseHandler/index.js';
 import { Subject } from '../types/custom.js';
 import logger from '../utils/logger.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import { validateAllocRoundId } from '../validationHandler/allocRound.js';
 import {
   timeFormatString,
@@ -33,6 +34,18 @@ const subject = express.Router();
 // Fetching all subjects, joining to each subject the program,
 // and needed spacetype using Knex
 // Currently no login required for seeing the subjects
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
+
 subject.get('/', [validate], (req: Request, res: Response) => {
   db_knex
     .select(
@@ -174,7 +187,14 @@ subject.get(
 subject.post(
   '/',
   validateSubjectPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [
+    authenticator,
+    admin,
+    planner,
+    roleChecker,
+    validate,
+    capitalizeFirstCharacter,
+  ],
   (req: Request, res: Response) => {
     const subjectData = {
       name: req.body.name,

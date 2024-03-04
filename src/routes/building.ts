@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { MysqlError } from 'mysql';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
@@ -11,6 +11,7 @@ import {
   requestErrorHandler,
   successHandler,
 } from '../responseHandler/index.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import {
   validateBuildingMultiPost,
   validateBuildingPost,
@@ -20,6 +21,17 @@ import { validateBuildingId } from '../validationHandler/building.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 
 const building = express.Router();
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
 
 function handleErrorBasedOnErrno(
   req: Request,
@@ -109,7 +121,7 @@ building.get(
 building.post(
   '/',
   validateBuildingPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, admin, roleChecker, validate, capitalizeFirstCharacter],
   (req: Request, res: Response) => {
     db_knex('Building')
       .insert(req.body)

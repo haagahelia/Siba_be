@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -9,11 +9,23 @@ import { dbErrorHandler, successHandler } from '../responseHandler/index.js';
 import allocationService from '../services/allocation.js';
 import programService from '../services/program.js';
 import logger from '../utils/logger.js';
+import { capitalizeFirstLetter } from '../utils/utility.js';
 import { validateAllocRoundId } from '../validationHandler/allocRound.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import { validateAllocRoundIdAndSubjectId } from '../validationHandler/subject.js';
 
 const allocation = express.Router();
+
+const capitalizeFirstCharacter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.body.name) {
+    req.body.name = capitalizeFirstLetter(req.body.name);
+  }
+  next();
+};
 
 /* Get rooms with allocated hours by allocationRoundId */
 allocation.get(
@@ -220,7 +232,14 @@ allocation.get(
 allocation.post(
   '/reset',
   validateAllocRoundId,
-  [authenticator, admin, planner, roleChecker, validate],
+  [
+    authenticator,
+    admin,
+    planner,
+    roleChecker,
+    validate,
+    capitalizeFirstCharacter,
+  ],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
     allocationService
