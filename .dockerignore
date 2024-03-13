@@ -1,5 +1,7 @@
+# Note: Only some items are shared between dockerignore and gitignore
+# Different goals, different needs
+
 yarn.lock
-#package-lock.json
 
 # Logs
 logs
@@ -74,9 +76,12 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# dotenv environment variables file, 
+# in dockerignore YES/NO, depends on how you config!
 .env
+.env.Local
 .env.test
+
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -84,8 +89,10 @@ typings/
 # Next.js build output
 .next
 
-# Nuxt.js build / generate output
+# Nuxt.js build / generated output.  
 .nuxt
+
+# TypeScript dist folder?
 dist
 
 # Create React App output folder after running "nmp build" or so
@@ -118,4 +125,4 @@ build
 # MS Office temp files
 ~$*
 
-#----------------------Above this line is a copy from .gitignore
+#----------------------Above this line is a copied almost 1:1 from .gitignore

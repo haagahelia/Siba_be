@@ -7,11 +7,13 @@ services:
     container_name: mariadb_container
     environment:
       - MARIADB_DATABASE=casedb
+      - MARIADB_USER=jyser3
+      - MARIADB_PASSWORD=a2843DOAIxuwm
       - MARIADB_ROOT_PASSWORD=ruut_p4swordi
     ports:
-      - 3306:3306
+      - 3309:3306
     volumes:
-      - ./Database/SQL_Scripts/createSchemaAndUsers.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./createSchemaAndUsers.sql:/docker-entrypoint-initdb.d/init.sql
       - ./Database/SQL_Scripts/000__CreateALLdb.sql:/docker-entrypoint-initdb.d/init2.sql
       - mariadb_volume:/var/lib/mysql
     networks:

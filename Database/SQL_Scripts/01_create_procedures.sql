@@ -230,8 +230,8 @@ BEGIN
 			AND alpa.missingItems = 0
 			AND alpa.allocRoundId = allocRid
 			GROUP BY alpa.spaceId
-			ORDER BY ((TIME_TO_SEC(TIMEDIFF(spa.availableTO, spa.availableFrom)) *5) -
-			(SELECT IFNULL((SUM(TIME_TO_SEC(totalTime))), 0) FROM AllocSpace asp WHERE asp.allocRoundId = allocRid AND spaceId = alpa.spaceId)) DESC
+			ORDER BY (CEILING((TIME_TO_SEC(TIMEDIFF(spa.availableTO, spa.availableFrom))) *5) -
+			(SELECT IFNULL((SUM(CEILING(TIME_TO_SEC(totalTime)))), 0) FROM AllocSpace asp WHERE asp.allocRoundId = allocRid AND spaceId = alpa.spaceId)) DESC
 			LIMIT 1
 		);
    		INSERT INTO AllocSpace (subjectId, allocRoundId, spaceId, totalTime)

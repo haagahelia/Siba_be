@@ -1,41 +1,41 @@
-version: '3.8'
+version: "3.8"     # Docker compose: https://docs.docker.com/compose/  YAML: https://yaml.org/spec/1.2.2/
+name: db_be_project
 
 services:
-  siba_db:
-    image: mariadb:11.1.2-jammy
-    container_name: mariadock
+  mariadb_service:
+    image: mariadb:11.1.2-jammy    # OR:   mariadb:latest
+    container_name: mariadb_container
     environment:
       - MARIADB_DATABASE=casedb
-      - MARIADB_USER=alternate_user
-      - MARIADB_PASSWORD=alternate_user_psw
-      - MARIADB_ROOT_PASSWORD=root_psw
+      - MARIADB_ROOT_PASSWORD=ruut_p4swordi
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
-      - ./Database/SQL_Scripts/000__CreateALLdb.sql:/docker-entrypoint-initdb.d/init.sql
-      - mariadb_data:/var/lib/mysql
+      - ./Database/SQL_Scripts/createSchemaAndUsers.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Database/SQL_Scripts/000__CreateALLdb.sql:/docker-entrypoint-initdb.d/init2.sql
+      - mariadb_volume:/var/lib/mysql
     networks:
-      - sibanetwork
+      - db_be_network
 
-  siba_be:
-    container_name: siba_be_dock
+  be_service:
+    container_name: be_container
     build: .
     env_file: .env
     depends_on:
-      - siba_db
+      - mariadb_service
     environment:
-    - DB_HOST=siba_db
+    - DB_HOST=mariadb_service
     ports:
       - '${BE_SERVER_PORT}:${BE_SERVER_PORT}'
     volumes:
       - .:/app
       - /app/node_modules
     networks:
-      - sibanetwork
+      - db_be_network
 
 networks:
-  sibanetwork:
+  db_be_network:
     driver: bridge
 
 volumes:
-  mariadb_data:
+  mariadb_volume:

@@ -1,6 +1,3 @@
-yarn.lock
-#package-lock.json
-
 # Logs
 logs
 *.log
@@ -46,6 +43,7 @@ jspm_packages/
 
 # Opionions differ, but I cannot see why not ignoring this generated file:
 package-lock.json
+yarn.lock
 
 # TypeScript v1 declaration files
 typings/
@@ -117,3 +115,6 @@ build
 
 # MS Office temp files
 ~$*
+
+# Schema and user creation file, includes passwords
+createSchemaAndUsers.sql

@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine AS be_image_xyz
 
 WORKDIR /app
 
