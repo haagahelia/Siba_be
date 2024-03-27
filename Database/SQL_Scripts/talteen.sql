@@ -1,7 +1,4 @@
-USE casedb; /* UPDATED 2023-11-21 */
-
--- DROP DATABASE IF EXISTS `casedb`;       /* These would not work other than for root or other able to create schemas */
--- CREATE DATABASE IF NOT EXISTS `casedb`; /* These would not work other than for root or other able to create schemas */
+USE casedb; /* UPDATED 2024-02-26 */
 
 DROP TABLE IF EXISTS log_event;
 DROP TABLE IF EXISTS log_list;
@@ -28,7 +25,9 @@ DROP TABLE IF EXISTS DepartmentPlanner;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Department;
 DROP TABLE IF EXISTS GlobalSetting;
-USE casedb; /* UPDATED 2023-11-05 */
+
+
+/* ------------------------------------------------------ */
 
 /* PROCEDURES */
 DROP PROCEDURE IF EXISTS abortAllocation;
@@ -43,7 +42,10 @@ DROP PROCEDURE IF EXISTS test_copyAllocRound;
 
 /* FUNCTIONS */
 DROP FUNCTION IF EXISTS getMissingItemAmount;
-USE casedb; /* UPDATED 2024-01-24 */
+
+/* ------------------------------------------------------ */
+
+/* UPDATED 2023-11-21 */
 
 /* --- 01 CREATE TABLES --- */
 
@@ -375,17 +377,17 @@ CREATE TABLE IF NOT EXISTS log_event (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-/* ------------------------------------------------------ */USE casedb; /* UPDATED 2023-11-05 */
+/* ------------------------------------------------------ */
 
 /* PROCEDURES */
-/* DELIMITER is explained here, just look at first two examples: https://mariadb.com/kb/en/delimiters/ */
+/* DELIMITER is explained here, just look at first two examples: https:__mariadb.com/kb/en/delimiters/ */
 
 -- -----------------------------------------------------------
 -- Copy Alloc Round. Copies the allocRound subjects, but not yet the SubjectEquipment
 DELIMITER //
 CREATE OR REPLACE PROCEDURE copyAllocRound(IN allocRid1 INT, 
                                         IN allocRoundName2 VARCHAR(255), 
-                                        IN allocRoundDescription2 VARCHAR(16000),
+                                        IN allocRoundDescription2 VARCHAR(10000),
                                         IN creatorUserId2 INT,
                                         OUT allocRid2 INT)
 BEGIN
@@ -429,7 +431,7 @@ BEGIN
     DECLARE allocRid               INTEGER        DEFAULT  10004;
     DECLARE random                 DOUBLE         DEFAULT RAND(); 
     DECLARE allocRoundName         VARCHAR(255)   DEFAULT   CONCAT('Copied test alloc round',random);
-    DECLARE allocRoundDescription  VARCHAR(16000) DEFAULT   'Alloc round based on 10004';
+    DECLARE allocRoundDescription  VARCHAR(10000) DEFAULT   'Alloc round based on 10004';
     DECLARE creatorUserId          INTEGER        DEFAULT   201;
     DECLARE allocRid2              INTEGER        DEFAULT -1;
 
@@ -446,8 +448,10 @@ DELIMITER ;
 
 -- -----------------------------------------------------------
 
+
 /* --- Procedure 1: Conditional database logger, used by other prodedures below --- */
-DELIMITER //
+
+DELIMITER __
 
 CREATE PROCEDURE IF NOT EXISTS LogAllocation(logId INT, stage VARCHAR(255), status VARCHAR(255), msg VARCHAR(16000))
 BEGIN
@@ -459,7 +463,7 @@ BEGIN
 		INSERT INTO log_event(log_id, stage, status, information) VALUES(logId, stage, status, msg);
 	END IF;
 END;
-//
+__
 DELIMITER ;
 
 /* allocRid is now used for the frontend sent allocRoundId, to make it stand out e.g. in:
@@ -468,7 +472,7 @@ DELIMITER ;
 
 
 /* --- Procedure 2: PRIORITIZE SUBJECTS -  TO ALLOCATION ORDER --- */
-DELIMITER //
+DELIMITER __
 
 CREATE OR REPLACE PROCEDURE prioritizeSubjects(allocRid INT, priority_option INT, logId INT)
 BEGIN
@@ -511,11 +515,11 @@ BEGIN
 	CALL LogAllocation(logId, "Prioritization", "OK", CONCAT("Priority option: ", priority_option, " completed."));
 
 END;
-//
+__
 DELIMITER ;
 
 /* --- Procedure 3: SET SUITABLE ROOMS -  Find which spaces could be suitable for this subject id - ALLOCATION --- */
-DELIMITER //
+DELIMITER __
 
 CREATE OR REPLACE PROCEDURE setSuitableRooms(allocRid INT, subId INT)
 BEGIN
@@ -528,11 +532,11 @@ BEGIN
 		AND sp.inUse=1
 		;
 END;
-//
+__
 DELIMITER ;
 
 /* --- Procedure 4: allocated space(s) to satisfy the subject's needs - until all needed hours have been allocated --- */
-DELIMITER //
+DELIMITER __
 
 CREATE PROCEDURE allocateSpace(allocRid INT, subId INT, logId INT)
 BEGIN
@@ -607,8 +611,8 @@ BEGIN
 			AND alpa.missingItems = 0
 			AND alpa.allocRoundId = allocRid
 			GROUP BY alpa.spaceId
-			ORDER BY (CEILING((TIME_TO_SEC(TIMEDIFF(spa.availableTO, spa.availableFrom))) *5) -
-			(SELECT IFNULL((SUM(CEILING(TIME_TO_SEC(totalTime)))), 0) FROM AllocSpace asp WHERE asp.allocRoundId = allocRid AND spaceId = alpa.spaceId)) DESC
+			ORDER BY ((TIME_TO_SEC(TIMEDIFF(spa.availableTO, spa.availableFrom)) *5) -
+			(SELECT IFNULL((SUM(TIME_TO_SEC(totalTime))), 0) FROM AllocSpace asp WHERE asp.allocRoundId = allocRid AND spaceId = alpa.spaceId)) DESC
 			LIMIT 1
 		);
    		INSERT INTO AllocSpace (subjectId, allocRoundId, spaceId, totalTime)
@@ -627,12 +631,12 @@ BEGIN
 		CALL LogAllocation(logId, "Space-allocation", "Warning", CONCAT("Subject : ", subId, " - Add ", sessions - allocated, " to space: ", spaceTo, " - All suitable spaces are full"));
    	END IF;
 END;
-//
+__
 DELIMITER ;
 
 
 /* --- Procedure 5 - A: START ALLOCATION --- */
-DELIMITER //
+DELIMITER __
 
 CREATE OR REPLACE PROCEDURE startAllocation(allocRid INT)
 BEGIN
@@ -762,12 +766,12 @@ BEGIN
 	UPDATE AllocRound SET processOn = 0 WHERE id = allocRid;
 
 END;
-//
+__
 DELIMITER ;
 
 
 /* --- PROCEDURE 6 - B: Abort Allocation --- */
-DELIMITER //
+DELIMITER __
 
 CREATE PROCEDURE IF NOT EXISTS abortAllocation(allocRid INT)
 BEGIN
@@ -781,12 +785,12 @@ BEGIN
 	END IF;
 
 END;
-//
+__
 DELIMITER ;
 
 
 /* --- Procedure 7 - C: RESET ALLOCATION, will nullify all calculations/allocations for this alloc R(ound) Id --- */
-DELIMITER //
+DELIMITER __
 
 CREATE PROCEDURE IF NOT EXISTS  resetAllocation(allocRid INTEGER)
 BEGIN
@@ -816,7 +820,7 @@ BEGIN
     END IF;
     UPDATE AllocRound SET isAllocated = 0, requireReset = FALSE WHERE id = allocRid;
 END;
-//
+__
 DELIMITER ;
 
 
@@ -824,7 +828,7 @@ DELIMITER ;
 /* FUNCTIONS */
 
 /* Function 8 (well 1-7 were actually procedures, but similar) - Get missing equipment(subject) count in space */
-DELIMITER //
+DELIMITER __
 
 CREATE FUNCTION IF NOT EXISTS getMissingItemAmount(subId INT, spaId INT) RETURNS INT
 NOT DETERMINISTIC
@@ -840,9 +844,11 @@ RETURN (
 		) a
 );
 END;
-//
+__
 DELIMITER ;
-USE casedb; /* UPDATED 2024-02-26 */
+
+
+/* ------------------------------------------------------ */
 
 /* INSERTS */
 /* --- Insert: GlobalSettings --- */
@@ -1146,7 +1152,7 @@ INSERT INTO Subject(name, groupSize, groupCount, sessionLength, sessionCount, ar
     ('Äänenkäyttö ja huolto / korrepetitiokoulutus', 4, 3, '01:00:00', 1, 10, 3015, 5004, 10004),
     ('Prima vista / korrepetitiokoulutus', 2, 6, '01:00:00', 1, 15, 3015, 5004, 10004),
     ('Musiikinhistorian lukupiiri', 10, 1, '01:00:00', 1 , 15, 3019, 5002, 10004),
-    ('Tohtoriseminaari (sävellys)', 17, 1, '02:00:00', 1, 30, 3019, 5002, 10003),
+     ('Tohtoriseminaari (sävellys)', 17, 1, '02:00:00', 1, 30, 3019, 5002, 10003),
     ('Musiikkiteknologian perusteet', 15, 1, '01:00:00', 1, 30, 3020, 5004, 10002),
     ('Johtamisen pedagogiikka -luentosarja', 10, 1, '02:00:00', 1, 20, 3018, 5002, 10001);
 

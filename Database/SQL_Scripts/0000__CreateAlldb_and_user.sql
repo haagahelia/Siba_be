@@ -1,3 +1,7 @@
+CREATE OR REPLACE SCHEMA casedb;
+CREATE OR REPLACE USER 'jyser3'@'localhost' IDENTIFIED BY 'a2843DOAIxuwm';
+GRANT ALL ON casedb.* TO 'jyser3'@'localhost' WITH GRANT OPTION;
+
 USE casedb; /* UPDATED 2023-11-21 */
 
 -- DROP DATABASE IF EXISTS `casedb`;       /* These would not work other than for root or other able to create schemas */
