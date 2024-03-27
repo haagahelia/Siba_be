@@ -76,7 +76,7 @@ CREATE PROCEDURE IF NOT EXISTS LogAllocation(logId INT, stage VARCHAR(255), stat
 BEGIN
 	DECLARE debug INTEGER;
 
-	SET debug := (SELECT numberValue FROM GlobalSetting WHERE name='allocation-debug');
+	SET debug := (SELECT numberValue FROM GlobalSetting WHERE variable='allocation-debug');
 
 	IF debug = 1 AND logId IS NOT NULL AND logId != 0 THEN
 		INSERT INTO log_event(log_id, stage, status, information) VALUES(logId, stage, status, msg);
@@ -99,17 +99,17 @@ BEGIN
 
 	SET priorityNow = (SELECT IFNULL(MAX(priority),0) FROM AllocSubject allSub WHERE allSub.allocRoundId = allocRid);
 
-	IF priority_option = 1 THEN -- subject_equipment.priority >= X
+	IF priority_option = 1 THEN -- subject_equipment.priority >= highPriority
 		INSERT INTO AllocSubject (subjectId, allocRoundId, priority)
 			SELECT allSub.subjectId, allSub.allocRoundId, ROW_NUMBER() OVER (ORDER BY MAX(sub_eqp.priority) DESC, Subject.groupSize ASC) + priorityNow as "row"
     		FROM AllocSubject allSub
     		LEFT JOIN SubjectEquipment sub_eqp ON allSub.subjectId = sub_eqp.subjectId
     		JOIN Subject ON allSub.subjectId = Subject.id
     		WHERE allSub.allocRoundId = allocRid AND allSub.priority IS NULL
-    		AND (sub_eqp.priority) >= (SELECT numberValue FROM GlobalSetting gs WHERE name="x")
+    		AND (sub_eqp.priority) >= (SELECT numberValue FROM GlobalSetting gs WHERE variable="highPriority")
     		GROUP BY allSub.subjectId
 		ON DUPLICATE KEY UPDATE priority = VALUES(priority);
-	ELSEIF priority_option = 2 THEN -- subject_equipment.priority < X
+	ELSEIF priority_option = 2 THEN -- subject_equipment.priority < highPriority
 		INSERT INTO AllocSubject (subjectId, allocRoundId, priority)
 			SELECT allSub.subjectId, allSub.allocRoundId, ROW_NUMBER() OVER (ORDER BY MAX(sub_eqp.priority) DESC, Subject.groupSize ASC) + priorityNow as "row"
        		FROM AllocSubject allSub
@@ -117,7 +117,7 @@ BEGIN
         	JOIN Subject ON allSub.subjectId = Subject.id
         	WHERE allSub.allocRoundId = allocRid
         	AND allSub.priority IS NULL
-        	AND (sub_eqp.priority) < (SELECT numberValue FROM GlobalSetting gs WHERE name="x")
+        	AND (sub_eqp.priority) < (SELECT numberValue FROM GlobalSetting gs WHERE variable="highPriority")
         	GROUP BY allSub.subjectId
         	ORDER BY sub_eqp.priority DESC
         ON DUPLICATE KEY UPDATE priority = VALUES(priority);
@@ -169,7 +169,7 @@ BEGIN
 
 	SET sessions := (SELECT groupCount * sessionCount FROM Subject WHERE id = subId); -- total amount of sessions in subject
    	SET allocated := 0; -- How many sessions allocated
-   	SET sessionSeconds := (SELECT TIME_TO_SEC(sessionLength) FROM Subject WHERE id = subId); -- Session length in seconds
+   	SET sessionSeconds := (SELECT CEILING(TIME_TO_SEC(sessionLength)) FROM Subject WHERE id = subId); -- Session length in seconds
 
 	SET spaceTo := ( -- to check if subject can be allocated
         	SELECT ass.spaceId FROM AllocSubjectSuitableSpace ass
@@ -313,7 +313,7 @@ BEGIN
 		END;
 
 	-- IF debug mode on, start logging.
-	SET debug := (SELECT numberValue FROM GlobalSetting WHERE name='allocation-debug');
+	SET debug := (SELECT numberValue FROM GlobalSetting WHERE variable='allocation-debug');
 	IF debug = 1 THEN
 		INSERT INTO log_list(log_type) VALUES (1); -- START LOG
 		SET logId := (SELECT LAST_INSERT_ID()); -- SET log id number for the list
@@ -351,8 +351,8 @@ BEGIN
 
 	UPDATE AllocRound SET requireReset = TRUE WHERE id = allocRid;
 
-	CALL prioritizeSubjects(allocRid, 1, logId); -- sub_eq.prior >= X ORDER BY sub_eq.prior DESC, groupSize ASC
-	CALL prioritizeSubjects(allocRid, 2, logId); -- sub_eq.prior < X ORDER BY sub_eq.prior DESC, groupSize ASC
+	CALL prioritizeSubjects(allocRid, 1, logId); -- sub_eq.prior >= highPriority ORDER BY sub_eq.prior DESC, groupSize ASC
+	CALL prioritizeSubjects(allocRid, 2, logId); -- sub_eq.prior < highPriority ORDER BY sub_eq.prior DESC, groupSize ASC
 	CALL prioritizeSubjects(allocRid, 3, logId); -- without equipments ORDER BY groupSize ASC
 
 	OPEN subjects;
@@ -387,12 +387,12 @@ BEGIN
 END;
 //
 DELIMITER ;
-
+                          TIMESPAN 75:59:59:999   vs.  TIME?  23:59:59:999
 
 /* --- PROCEDURE 6 - B: Abort Allocation --- */
 DELIMITER //
 
-CREATE PROCEDURE IF NOT EXISTS abortAllocation(allocRid INT)
+CREATE PROCEDURE IF NOT EXISTS abortAllocation(allocRid INT)	
 BEGIN
 	DECLARE inProgress BOOLEAN DEFAULT FALSE;
 

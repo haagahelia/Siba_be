@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import knex from 'knex';
 import { admin } from '../authorization/admin.js';
 import { planner } from '../authorization/planner.js';
 import { roleChecker } from '../authorization/roleChecker.js';
@@ -391,4 +392,66 @@ space.get(
   },
 );
 
+// fetching total no. of allocations associated with space by space id
+space.get(
+  '/:id/numberOfAllocSpaces',
+  [authenticator, admin, planner, statist, roleChecker, validate],
+  (req: Request, res: Response) => {
+    const spaceId = req.params.id;
+    db_knex('Allocspace')
+      .count('allocRoundId')
+      .where('spaceId', spaceId)
+      .then((allocRoundId) => {
+        successHandler(
+          req,
+          res,
+          allocRoundId,
+          'Successfully recived the total number of allocspace by space id from database',
+        );
+      })
+      .catch((error) => {
+        dbErrorHandler(
+          req,
+          res,
+          error,
+          'Failed to get the total number of allocspace by space id from database',
+        );
+      });
+  },
+);
+
+//fetching first five names of allocrounds of a selected space by id
+space.get(
+  '/:id/firstFiveAllocNames',
+  [authenticator, admin, planner, statist, roleChecker, validate],
+  (req: Request, res: Response) => {
+    const spaceId = req.params.id;
+    db_knex('Allocspace')
+      .join(
+        'AllocSubject',
+        'Allocspace.allocRoundId',
+        'AllocSubject.allocRoundId',
+      )
+      .join('Allocround', 'Allocspace.allocRoundId', 'Allocround.id')
+      .select('Allocround.name')
+      .where('spaceId', spaceId)
+      .limit(5)
+      .then((allocRoundNames) => {
+        successHandler(
+          req,
+          res,
+          allocRoundNames,
+          'Successfully recived the first five names of allocspace by space id from database',
+        );
+      })
+      .catch((error) => {
+        dbErrorHandler(
+          req,
+          res,
+          error,
+          'Failed to get the first five names of allocspace by space id from database',
+        );
+      });
+  },
+);
 export default space;

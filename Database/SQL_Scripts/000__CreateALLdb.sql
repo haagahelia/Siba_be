@@ -49,7 +49,7 @@ USE casedb; /* UPDATED 2024-01-24 */
 
 CREATE TABLE IF NOT EXISTS GlobalSetting (
     id              INTEGER                     NOT NULL AUTO_INCREMENT,
-    name            VARCHAR(255)   UNIQUE       NOT NULL,
+    variable            VARCHAR(255)   UNIQUE       NOT NULL,
     description     VARCHAR(16000)              NOT NULL,
     numberValue     INTEGER,
     textValue       VARCHAR(255),
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS Subject (
         REFERENCES SpaceType(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-    
+
     CONSTRAINT `FK_Subject_AllocRound` FOREIGN KEY (allocRoundId)
         REFERENCES AllocRound(id)
         ON DELETE CASCADE
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS SubjectEquipment (
 
     CONSTRAINT `FK_SubjectEquipment_Equipment` FOREIGN KEY (equipmentId)
                 REFERENCES Equipment(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -292,7 +292,7 @@ CREATE TABLE IF NOT EXISTS AllocSpace (
 
     CONSTRAINT `FK_AllocSpace_Space` FOREIGN KEY (spaceId)
         REFERENCES Space(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -314,7 +314,7 @@ CREATE TABLE IF NOT EXISTS AllocSubjectSuitableSpace (
     CONSTRAINT `FK_AllocSubjectSpace_Space`
         FOREIGN KEY (spaceId)
         REFERENCES Space(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -383,42 +383,42 @@ CREATE TABLE IF NOT EXISTS log_event (
 -- -----------------------------------------------------------
 -- Copy Alloc Round. Copies the allocRound subjects, but not yet the SubjectEquipment
 DELIMITER //
-CREATE OR REPLACE PROCEDURE copyAllocRound(IN allocRid1 INT, 
-                                        IN allocRoundName2 VARCHAR(255), 
-                                        IN allocRoundDescription2 VARCHAR(16000),
+CREATE OR REPLACE PROCEDURE copyAllocRound(IN allocRid1 INT,
+                                        IN allocRoundName2 VARCHAR(255),
+                                        IN allocRoundDescription2 VARCHAR(10000),
                                         IN creatorUserId2 INT,
                                         OUT allocRid2 INT)
 BEGIN
     INSERT INTO AllocRound
-        (`date`, name, isSeasonAlloc, userId, 
-        description, lastModified, isAllocated, 
+        (`date`, name, isSeasonAlloc, userId,
+        description, lastModified, isAllocated,
             processOn, abortProcess, requireReset)
     VALUES(
-        NULL, allocRoundName2, 0, creatorUserId2, 
+        NULL, allocRoundName2, 0, creatorUserId2,
         allocRoundDescription2, current_timestamp(), 0,
             0, 0, 0);
 
     SET allocRid2 = last_insert_id();
 
-    INSERT INTO Subject 
-                    (name,     groupSize,     groupCount,    sessionLength, 
+    INSERT INTO Subject
+                    (name,     groupSize,     groupCount,    sessionLength,
                        sessionCount,    area,    programId,    spaceTypeId, allocRoundId)
-    
-            SELECT s1.name, s1.groupSize, s1.groupCount, s1.sessionLength, 
+
+            SELECT s1.name, s1.groupSize, s1.groupCount, s1.sessionLength,
                     s1.sessionCount, s1.area, s1.programId, s1.spaceTypeId, allocRid2
             FROM Subject s1
                 WHERE (s1.allocRoundId = allocRid1);
-            
-    INSERT INTO SubjectEquipment  
+
+    INSERT INTO SubjectEquipment
                     (subjectId, equipmentId, priority, obligatory)
             SELECT s2.id, se1.equipmentId, se1.priority, se1.obligatory
-            
-            FROM Subject s2 JOIN Subject s1 ON s2.name = s1.name 
-                 JOIN SubjectEquipment se1 ON s1.id = se1.subjectId 
+
+            FROM Subject s2 JOIN Subject s1 ON s2.name = s1.name
+                 JOIN SubjectEquipment se1 ON s1.id = se1.subjectId
                  WHERE s2.allocRoundId = allocRid2 AND s1.allocRoundId = allocRid1;
-    
+
     SHOW ERRORS;
-    
+
 END;
 //
 DELIMITER ;
@@ -427,19 +427,19 @@ DELIMITER //
 CREATE OR REPLACE PROCEDURE test_copyAllocRound()
 BEGIN
     DECLARE allocRid               INTEGER        DEFAULT  10004;
-    DECLARE random                 DOUBLE         DEFAULT RAND(); 
+    DECLARE random                 DOUBLE         DEFAULT RAND();
     DECLARE allocRoundName         VARCHAR(255)   DEFAULT   CONCAT('Copied test alloc round',random);
     DECLARE allocRoundDescription  VARCHAR(16000) DEFAULT   'Alloc round based on 10004';
     DECLARE creatorUserId          INTEGER        DEFAULT   201;
     DECLARE allocRid2              INTEGER        DEFAULT -1;
 
-    CALL copyAllocRound(allocRid, 
-                        allocRoundName, 
+    CALL copyAllocRound(allocRid,
+                        allocRoundName,
                         allocRoundDescription,
                         creatorUserId,
                         allocRid2);
     SELECT allocRid2;
-                
+
 END;
 //
 DELIMITER ;
@@ -453,7 +453,7 @@ CREATE PROCEDURE IF NOT EXISTS LogAllocation(logId INT, stage VARCHAR(255), stat
 BEGIN
 	DECLARE debug INTEGER;
 
-	SET debug := (SELECT numberValue FROM GlobalSetting WHERE name='allocation-debug');
+	SET debug := (SELECT numberValue FROM GlobalSetting WHERE variable='allocation-debug');
 
 	IF debug = 1 AND logId IS NOT NULL AND logId != 0 THEN
 		INSERT INTO log_event(log_id, stage, status, information) VALUES(logId, stage, status, msg);
@@ -476,17 +476,17 @@ BEGIN
 
 	SET priorityNow = (SELECT IFNULL(MAX(priority),0) FROM AllocSubject allSub WHERE allSub.allocRoundId = allocRid);
 
-	IF priority_option = 1 THEN -- subject_equipment.priority >= X
+	IF priority_option = 1 THEN -- subject_equipment.priority >= highPriority
 		INSERT INTO AllocSubject (subjectId, allocRoundId, priority)
 			SELECT allSub.subjectId, allSub.allocRoundId, ROW_NUMBER() OVER (ORDER BY MAX(sub_eqp.priority) DESC, Subject.groupSize ASC) + priorityNow as "row"
     		FROM AllocSubject allSub
     		LEFT JOIN SubjectEquipment sub_eqp ON allSub.subjectId = sub_eqp.subjectId
     		JOIN Subject ON allSub.subjectId = Subject.id
     		WHERE allSub.allocRoundId = allocRid AND allSub.priority IS NULL
-    		AND (sub_eqp.priority) >= (SELECT numberValue FROM GlobalSetting gs WHERE name="x")
+    		AND (sub_eqp.priority) >= (SELECT numberValue FROM GlobalSetting gs WHERE variable="highPriority")
     		GROUP BY allSub.subjectId
 		ON DUPLICATE KEY UPDATE priority = VALUES(priority);
-	ELSEIF priority_option = 2 THEN -- subject_equipment.priority < X
+	ELSEIF priority_option = 2 THEN -- subject_equipment.priority < highPriority
 		INSERT INTO AllocSubject (subjectId, allocRoundId, priority)
 			SELECT allSub.subjectId, allSub.allocRoundId, ROW_NUMBER() OVER (ORDER BY MAX(sub_eqp.priority) DESC, Subject.groupSize ASC) + priorityNow as "row"
        		FROM AllocSubject allSub
@@ -494,7 +494,7 @@ BEGIN
         	JOIN Subject ON allSub.subjectId = Subject.id
         	WHERE allSub.allocRoundId = allocRid
         	AND allSub.priority IS NULL
-        	AND (sub_eqp.priority) < (SELECT numberValue FROM GlobalSetting gs WHERE name="x")
+        	AND (sub_eqp.priority) < (SELECT numberValue FROM GlobalSetting gs WHERE variable="highPriority")
         	GROUP BY allSub.subjectId
         	ORDER BY sub_eqp.priority DESC
         ON DUPLICATE KEY UPDATE priority = VALUES(priority);
@@ -690,7 +690,7 @@ BEGIN
 		END;
 
 	-- IF debug mode on, start logging.
-	SET debug := (SELECT numberValue FROM GlobalSetting WHERE name='allocation-debug');
+	SET debug := (SELECT numberValue FROM GlobalSetting WHERE variable='allocation-debug');
 	IF debug = 1 THEN
 		INSERT INTO log_list(log_type) VALUES (1); -- START LOG
 		SET logId := (SELECT LAST_INSERT_ID()); -- SET log id number for the list
@@ -728,8 +728,8 @@ BEGIN
 
 	UPDATE AllocRound SET requireReset = TRUE WHERE id = allocRid;
 
-	CALL prioritizeSubjects(allocRid, 1, logId); -- sub_eq.prior >= X ORDER BY sub_eq.prior DESC, groupSize ASC
-	CALL prioritizeSubjects(allocRid, 2, logId); -- sub_eq.prior < X ORDER BY sub_eq.prior DESC, groupSize ASC
+	CALL prioritizeSubjects(allocRid, 1, logId); -- sub_eq.prior >= highPriority ORDER BY sub_eq.prior DESC, groupSize ASC
+	CALL prioritizeSubjects(allocRid, 2, logId); -- sub_eq.prior < highPriority ORDER BY sub_eq.prior DESC, groupSize ASC
 	CALL prioritizeSubjects(allocRid, 3, logId); -- without equipments ORDER BY groupSize ASC
 
 	OPEN subjects;
@@ -846,9 +846,9 @@ USE casedb; /* UPDATED 2024-02-26 */
 
 /* INSERTS */
 /* --- Insert: GlobalSettings --- */
-INSERT INTO GlobalSetting(name, description, numberValue, textValue) VALUES
-    ('X', 'Korkea prioriteettiarvo', 800, NULL),
-    ("allocation-debug", "Onko allokoinnin logitus päällä. numberValue : 0 = OFF, 1 = ON", 1, NULL),
+INSERT INTO GlobalSetting(variable, description, numberValue, textValue) VALUES
+    ('highPriority', 'High priority value', 800, NULL),
+    ("allocation-debug", "Is the allocation logging on? numberValue : 0 = OFF, 1 = ON", 1, NULL),
     ("items-per-page", "The number of items to display per page in lists. Default is 15.", 15, NULL);
 
 /* --- Insert: Department --- */

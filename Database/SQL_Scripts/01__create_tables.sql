@@ -4,7 +4,7 @@ USE casedb; /* UPDATED 2024-01-24 */
 
 CREATE TABLE IF NOT EXISTS GlobalSetting (
     id              INTEGER                     NOT NULL AUTO_INCREMENT,
-    name            VARCHAR(255)   UNIQUE       NOT NULL,
+    variable            VARCHAR(255)   UNIQUE       NOT NULL,
     description     VARCHAR(16000)              NOT NULL,
     numberValue     INTEGER,
     textValue       VARCHAR(255),
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS Subject (
         REFERENCES SpaceType(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
-    
+
     CONSTRAINT `FK_Subject_AllocRound` FOREIGN KEY (allocRoundId)
         REFERENCES AllocRound(id)
         ON DELETE CASCADE
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS SubjectEquipment (
 
     CONSTRAINT `FK_SubjectEquipment_Equipment` FOREIGN KEY (equipmentId)
                 REFERENCES Equipment(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS AllocSpace (
 
     CONSTRAINT `FK_AllocSpace_Space` FOREIGN KEY (spaceId)
         REFERENCES Space(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS AllocSubjectSuitableSpace (
     CONSTRAINT `FK_AllocSubjectSpace_Space`
         FOREIGN KEY (spaceId)
         REFERENCES Space(id)
-        ON DELETE CASCADE
+        ON DELETE NO ACTION
         ON UPDATE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
