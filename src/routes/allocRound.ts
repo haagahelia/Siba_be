@@ -99,9 +99,6 @@ allocround.get(
   },
 );
 
-// Adding an AllocRound
-const userId = 201; // user id for adding new AllocRound
-
 allocround.post(
   '/',
   validateAllocRoundPost,
@@ -110,7 +107,7 @@ allocround.post(
     const allocRound = {
       name: req.body.name,
       description: req.body.description,
-      userId: userId,
+      userId: req.body.userId,
       isReadOnly: req.body.isReadOnly || false,
     };
 
