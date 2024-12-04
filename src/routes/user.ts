@@ -266,6 +266,30 @@ user.post('/forget-password', (req, res) => {
     });
 });
 
+//reset password handling for non-logged in user
+user.post(
+  '/reset-password/:id',
+  (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { password } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    db_knex('User')
+      .update('password', hashedPassword)
+      .where('id', id)
+      .then((data) => {
+        if (data) {
+          successHandler(req, res, data, 'Password reset successful');
+        } else {
+          requestErrorHandler(req, res, 'Could not reset! Sorry');
+        }
+      })
+      .catch((error) => {
+        dbErrorHandler(req, res, error, 'Reset failed!');
+      });
+  },
+ );
+
+
 //reset password handling
 user.post('/reset-password/:id/:token', (req: Request, res: Response) => {
   const { id, token } = req.params;
