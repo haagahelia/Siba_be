@@ -2,7 +2,7 @@ name: dbbe_project
 
 services:
   siba_db_service:
-    image: mariadb:latest   # OR:   mariadb:11.1.2-jammy
+    image: mariadb:12 # OR: e.g. mariadb:latest OR  mariadb:12.2.2-ubi10
     container_name: siba_db_container
     env_file: .env
     ports:
@@ -10,6 +10,12 @@ services:
     volumes:
       - ./Database/SQL_Scripts/000__CreateALLdb.sql:/docker-entrypoint-initdb.d/init.sql
       - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - db_be_network
 
@@ -18,14 +24,15 @@ services:
     build: .
     env_file: .env
     depends_on:
-      - siba_db_service
+      siba_db_service:
+        condition: service_healthy
     environment:
       - DB_HOST=siba_db_service
     ports:
       - "${BE_SERVER_PORT}:${BE_SERVER_PORT}"
     volumes:
       - .:/app
-      - /app/node_modules
+      - temp_node_module_volume:/app/node_modules
     networks:
       - db_be_network
 
@@ -35,3 +42,4 @@ networks:
 
 volumes:
   mariadb_data:
+  temp_node_module_volume:
