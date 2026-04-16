@@ -15,6 +15,9 @@
   "pre-commit": [
     "precommit"
   ],
+  "overrides": {
+    "cross-spawn": ">=6.0.6"
+  },
   "nano-staged": {
     "*.{js,ts}": "biome check --apply ./src"
   },
@@ -45,7 +48,7 @@
     "@types/winston": "^2.4.4",
     "concurrently": "^8.2.2",
     "nano-staged": "^0.8.0",
-    "pre-commit": "^1.2.2",
+    "pre-commit": "^1.0.10",
     "rimraf": "^5.0.5",
     "tsc-watch": "^6.0.4",
     "typescript": "^5.4.5"
