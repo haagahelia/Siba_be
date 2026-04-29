@@ -176,7 +176,7 @@ user.get(
 
 // handling login for registered user
 user.post('/login', (req, res) => {
-  console.log(`Login, password: ${req.body.password}`);
+  console.log(`Login, password: ${req.body.password}`); // TODO!!! UNSAFE!!!
 
   db_knex('User')
     .select('id', 'email', 'password', 'isAdmin', 'isPlanner', 'isStatist')
