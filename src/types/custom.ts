@@ -4,19 +4,12 @@ export type RoleName = 'admin' | 'planner' | 'statist';
 
 export type RolePropertyName = 'isAdmin' | 'isPlanner' | 'isStatist';
 
-export type RoleRequired =
-  | 0 // none required
-  | -1 // at least one required
-  | 1; // role needs to be satisfied
-
 export type User = {
   id: number;
   email: string;
   isAdmin: number;
   isPlanner: number;
   isStatist: number;
-  // was like this:
-  //[key in RolePropertyName]: RoleRequired;
 };
 
 export interface DepartmentPlanner {

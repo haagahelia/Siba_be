@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -28,7 +25,7 @@ const allocround = express.Router();
 /* Get all allocations */
 allocround.get(
   '/',
-  [authenticator, admin, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('AllocRound')
       .select(
@@ -65,7 +62,7 @@ allocround.get(
 allocround.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     db_knex('AllocRound')
       .select(
@@ -102,7 +99,7 @@ allocround.get(
 allocround.post(
   '/',
   validateAllocRoundPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const allocRound = {
       name: req.body.name,
@@ -142,7 +139,7 @@ allocround.post(
 allocround.post(
   '/copyAllocRound',
   validateAllocRoundCopyPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   async (req: Request, res: Response) => {
     const copiedAllocRoundId = Number(req.body.copiedAllocRoundId);
 
@@ -231,7 +228,7 @@ allocround.post(
 allocround.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -282,7 +279,7 @@ allocround.delete(
 allocround.put(
   '/',
   validateAllocRoundPut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const allocRoundId = req.body.id;
     let updateData = {};

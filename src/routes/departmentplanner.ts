@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -19,7 +16,7 @@ const departmentplanner = express.Router();
 // get all departmentplanners
 departmentplanner.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('DepartmentPlanner')
       .select('departmentId', 'userId')
@@ -110,7 +107,7 @@ departmentplanner.post(
 departmentplanner.put(
   '/',
   validateUserIdAndDepartmentId,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const plannerData = {
       userId: req.body.userId,

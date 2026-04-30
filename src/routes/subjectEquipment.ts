@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -24,7 +21,7 @@ const subjectequipment = express.Router();
 subjectequipment.get(
   '/getEquipment/:subjectId',
   validateSubjectId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const subjectId = req.params.subjectId;
     db_knex
@@ -62,7 +59,7 @@ subjectequipment.get(
 subjectequipment.post(
   '/post',
   validateSubjectEquipmentPost,
-  [authenticator, admin, planner, roleChecker, validate], // Only admin and planner can add subjectEquipment to a subject
+  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can add subjectEquipment to a subject
   async (req: Request, res: Response) => {
     const subjectId = req.body.subjectId;
     const equipmentId = req.body.equipmentId;
@@ -173,7 +170,7 @@ subjectequipment.post(
 subjectequipment.put(
   '/update',
   validateSubjectEquipmentPost,
-  [authenticator, admin, planner, roleChecker, validate], // Only admin and planner can update subjectEquipment to a subject
+  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can update subjectEquipment to a subject
   async (req: Request, res: Response) => {
     try {
       // Check if allocRound of the subject is Read only
@@ -270,7 +267,7 @@ subjectequipment.put(
 subjectequipment.delete(
   '/delete/:subjectId/:equipmentId',
   validateSubjectAndEquipmentId,
-  [authenticator, admin, planner, roleChecker, validate], // Only admin and planner can delete subjectEquipment
+  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can delete subjectEquipment
   async (req: Request, res: Response) => {
     const subjectId = req.params.subjectId;
     const equipmentId = req.params.equipmentId;

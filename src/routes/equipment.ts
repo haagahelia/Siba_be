@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -25,7 +22,7 @@ const equipment = express.Router();
 // for a select list and for the default priority done with Knex
 equipment.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .select('id', 'name', 'priority', 'description', 'isMovable')
@@ -47,7 +44,7 @@ equipment.get(
 equipment.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .select()
@@ -70,7 +67,7 @@ equipment.get(
 equipment.post(
   '/',
   validateEquipmentPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex
       .insert(req.body)
@@ -98,7 +95,7 @@ equipment.post(
 equipment.post(
   '/multi',
   validateEquipmentMultiPost,
-  [authenticator, planner, admin, roleChecker, validate],
+  [authenticator, allowRoles('planner', 'admin'), validate],
   (req: Request, res: Response) => {
     db_knex
       .insert(req.body)
@@ -127,7 +124,7 @@ equipment.post(
 equipment.put(
   '/:id',
   validateEquipmentPut,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .where('id', req.body.id)
@@ -149,7 +146,7 @@ equipment.put(
 equipment.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .where('id', req.params.id)
@@ -175,7 +172,7 @@ equipment.delete(
 equipment.get(
   '/:id/subjectCount',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const equipmentId = req.params.id;
     db_knex('SubjectEquipment')
@@ -204,7 +201,7 @@ equipment.get(
 equipment.get(
   '/:id/subjectFirstFiveNames',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const equipmentId = req.params.id;
     db_knex('Equipment')

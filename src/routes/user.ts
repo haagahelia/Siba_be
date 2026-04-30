@@ -2,9 +2,7 @@ import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import jsonwebtoken from 'jsonwebtoken';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -30,7 +28,7 @@ const user = express.Router();
 user.post(
   '/',
   validateUserPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     // REMOVE AFTER SOME TESTING!!! SECURITY!!!
@@ -64,7 +62,7 @@ user.post(
 user.post(
   '/multi',
   validateMultiUserPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   async (req: Request, res: Response) => {
     const userDepartmentPlanner: DepartmentPlanner[] = [];
     // insert user data
@@ -148,7 +146,7 @@ user.post(
 // Fetching all users
 user.get(
   '/',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex
       .select(
@@ -303,7 +301,7 @@ user.post('/reset-password/:id/:token', (req: Request, res: Response) => {
 user.put(
   '/',
   validateUserPut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const userData = {
       id: req.body.id,
@@ -332,7 +330,7 @@ user.put(
 user.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const id = req.params.id;
     db_knex('User')

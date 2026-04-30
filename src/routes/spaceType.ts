@@ -1,9 +1,6 @@
 import express, { Request, Response } from 'express';
 import { MysqlError } from 'mysql';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -62,7 +59,7 @@ function handleErrorBasedOnErrno(
 // get all spacetypes
 spaceType.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .select()
@@ -89,7 +86,7 @@ spaceType.get(
 spaceType.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .select()
@@ -117,7 +114,7 @@ spaceType.get(
 spaceType.post(
   '/',
   validateSpaceTypePost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .insert(req.body)
@@ -140,7 +137,7 @@ spaceType.post(
 spaceType.post(
   '/multi',
   validateSpaceTypeMultiPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .insert(req.body)
@@ -163,7 +160,7 @@ spaceType.post(
 spaceType.put(
   '/',
   validateSpaceTypePut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .where('id', req.body.id)
@@ -193,7 +190,7 @@ spaceType.put(
 spaceType.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .select()

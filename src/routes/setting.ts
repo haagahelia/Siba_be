@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db from '../db/index_knex.js';
 import {
@@ -21,7 +18,7 @@ const setting = express.Router();
 // get all settings
 setting.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .select()
@@ -48,7 +45,7 @@ setting.get(
 setting.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .select()
@@ -76,7 +73,7 @@ setting.get(
 setting.post(
   '/',
   validateSettingPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .insert(req.body)
@@ -113,7 +110,7 @@ setting.post(
 setting.put(
   '/',
   validateSettingPut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     if (!req.body.variable) {
       requestErrorHandler(req, res, 'Setting variable is missing.');
@@ -162,7 +159,7 @@ setting.put(
 setting.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .select()

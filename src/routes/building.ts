@@ -1,9 +1,6 @@
 import express, { Request, Response } from 'express';
 import { MysqlError } from 'mysql';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -51,7 +48,7 @@ function handleErrorBasedOnErrno(
 // get all buildings   GET server.com:4678/api/building/
 building.get(
   '/',
-  [authenticator, admin, statist, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'statist', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex('Building')
       .select()
@@ -78,7 +75,7 @@ building.get(
 building.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('Building')
       .select()
@@ -109,7 +106,7 @@ building.get(
 building.post(
   '/',
   validateBuildingPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('Building')
       .insert(req.body)
@@ -132,7 +129,7 @@ building.post(
 building.post(
   '/multi',
   validateBuildingMultiPost,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('Building')
       .insert(req.body)
@@ -155,7 +152,7 @@ building.post(
 building.put(
   '/',
   validateBuildingPut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     if (!req.body.name) {
       requestErrorHandler(req, res, 'Building name is missing.');
@@ -190,7 +187,7 @@ building.put(
 building.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     db_knex('Building')
       .select()
@@ -218,7 +215,7 @@ building.delete(
 building.get(
   '/:buildingId/numberOfSpaces',
   validateBuildingId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const buildingId = req.params.buildingId;
 
@@ -248,7 +245,7 @@ building.get(
 // Count the number of spaces associated with a specific building ID
 building.get(
   '/spaceCount/:id',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const { id } = req.params;
     db_knex('Space')

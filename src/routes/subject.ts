@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -106,7 +103,7 @@ subject.get(
 subject.get(
   '/getNames/:allocRoundId',
   validateAllocRoundId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex
       .select('id', 'name')
@@ -176,7 +173,7 @@ subject.get(
 subject.post(
   '/',
   validateSubjectPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     const subjectData = {
       name: req.body.name,
@@ -239,7 +236,7 @@ subject.post(
   '/multi/:allocRoundId',
   validateAllocRoundId,
   validateSubjectMultiPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     const subjectData: Subject[] = [];
 
@@ -327,7 +324,7 @@ subject.post(
 subject.put(
   '/',
   validateSubjectPut,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     const editedSubject = {
       'Subject.id': req.body.id,
@@ -368,7 +365,7 @@ subject.put(
 subject.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     db_knex('Subject')
       .join('AllocRound', 'AllocRound.id', 'Subject.allocRoundId')
@@ -394,7 +391,7 @@ subject.delete(
 
 subject.get(
   '/bySpaceType/:spaceTypeId',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     const { spaceTypeId } = req.params;
     db_knex('Subject')

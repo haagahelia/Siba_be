@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db from '../db/index.js';
 import db_knex from '../db/index_knex.js';
@@ -27,7 +24,7 @@ const program = express.Router();
 // Program id:s and name:s, to be used in a select list
 /*program.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex
       .select('id', 'name')
@@ -42,7 +39,7 @@ const program = express.Router();
 );*/
 program.get(
   '/',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex
       .select(
@@ -67,7 +64,7 @@ program.get(
 program.get(
   '/:id',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex
       .select()
@@ -90,7 +87,7 @@ program.get(
 // get program by programName and email
 program.get(
   '/programName/:email',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('Program')
       .select('Program.name')
@@ -120,7 +117,7 @@ program.get(
 program.get(
   '/userprograms/:userId',
   validateUserId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     db_knex('Program')
       .select('Program.id')
@@ -151,7 +148,7 @@ program.get(
 program.post(
   '/',
   validateProgramPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     const newProgram = {
       name: req.body.name,
@@ -181,7 +178,7 @@ program.post(
 program.post(
   '/multi',
   validateProgramMultiPost,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     console.log(req.body);
     const programData: ProgramWithDepartmentId[] = [];
@@ -232,7 +229,7 @@ program.post(
 program.put(
   '/',
   validateProgramPut,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const id = req.body.id;
     const name = req.body.name;
@@ -263,7 +260,7 @@ program.put(
 program.delete(
   '/:id',
   validateIdObl,
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     const id = req.params.id;
 
@@ -291,7 +288,7 @@ program.delete(
 program.get(
   '/:programId/numberOfLessons',
   validateProgramId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const programId = req.params.programId;
 

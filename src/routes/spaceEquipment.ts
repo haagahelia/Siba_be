@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -20,7 +17,7 @@ const spaceequipment = express.Router();
 spaceequipment.get(
   '/getEquipment/:spaceId',
   validateSpaceId, // Add a validation for spaceId
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const spaceId = req.params.spaceId;
     db_knex
@@ -81,7 +78,7 @@ spaceequipment.post(
 // Removing an equipment from a space using knex:
 spaceequipment.delete(
   '/delete/:spaceId/:equipmentId',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     const spaceId = req.params.spaceId;
     const equipmentId = req.params.equipmentId;

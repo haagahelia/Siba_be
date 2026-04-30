@@ -40,8 +40,6 @@ export const authenticator = (
       }
 
       req.user = verified as User; // Type assertion. Programmer knows User object will come out from decryption
-      req.areRolesRequired = 0;
-      req.requiredRolesList = [];
       next();
     } catch (err) {
       authenticationErrorHandler(req, res, 'Login token found but NOT valid');

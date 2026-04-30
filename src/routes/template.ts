@@ -1,7 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import { validate } from '../validationHandler/index.js';
 
@@ -9,7 +7,7 @@ const template = express.Router();
 
 template.get(
   '/building',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -27,7 +25,7 @@ template.get(
 
 template.get(
   '/subject',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -42,7 +40,7 @@ template.get(
 
 template.get(
   '/space',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -57,7 +55,7 @@ template.get(
 
 template.get(
   '/spacetype',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -75,7 +73,7 @@ template.get(
 
 template.get(
   '/user',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -90,7 +88,7 @@ template.get(
 
 template.get(
   '/equipment',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -108,7 +106,7 @@ template.get(
 
 template.get(
   '/department',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)
@@ -126,7 +124,7 @@ template.get(
 
 template.get(
   '/program',
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   (req: Request, res: Response) => {
     res
       .status(200)

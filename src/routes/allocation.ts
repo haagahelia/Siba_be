@@ -1,8 +1,5 @@
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { planner } from '../authorization/planner.js';
-import { roleChecker } from '../authorization/roleChecker.js';
-import { statist } from '../authorization/statist.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import {
   dbErrorHandler,
@@ -21,7 +18,7 @@ const allocation = express.Router();
 /* Get rooms with allocated hours by allocationRoundId */
 allocation.get(
   '/:allocationRoundId/rooms',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const id = req.params.allocationRoundId;
     allocationService
@@ -49,7 +46,7 @@ allocation.get(
 allocation.get(
   '/:id/program',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const id = req.params.id;
     programService
@@ -96,7 +93,7 @@ allocation.get(
 allocation.get(
   '/:allocRoundId/rooms/:subjectId',
   validateAllocRoundIdAndSubjectId,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     const subjectId = req.params.subjectId;
@@ -127,7 +124,7 @@ allocation.get(
 allocation.get(
   '/:id/subject/unallocated',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.id;
     logger.debug(`Alloc round id for unallocated: ${allocRoundId}`);
@@ -150,7 +147,7 @@ allocation.get(
 allocation.get(
   '/subject/:id/rooms',
   validateIdObl,
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const subjectId = req.params.id;
     await allocationService
@@ -172,7 +169,7 @@ allocation.get(
 // eqpt = equipment
 allocation.get(
   '/missing-eqpt/subject/:subid/room/:roomid',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const subjectId = req.params.subid;
     const spaceId = req.params.roomid;
@@ -200,7 +197,7 @@ allocation.get(
 /* Get all allocated subjects by RoomId, allocRound */
 allocation.get(
   '/:id/subjects/:roomId',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.id;
     const roomId = req.params.roomId;
@@ -228,7 +225,7 @@ allocation.get(
 allocation.post(
   '/reset',
   validateAllocRoundId,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 
@@ -271,7 +268,7 @@ allocation.post(
 allocation.post(
   '/abort',
   validateAllocRoundId,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 
@@ -314,7 +311,7 @@ allocation.post(
 allocation.post(
   '/start',
   validateAllocRoundId,
-  [authenticator, admin, planner, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner'), validate],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 
@@ -356,7 +353,7 @@ allocation.post(
 //Get data for allocation report to excel
 allocation.get(
   '/report/:allocRoundId',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     allocationService
@@ -373,7 +370,7 @@ allocation.get(
 // get data for plannerReport to excel
 allocation.get(
   '/plannerreport/:allocRoundId',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     const userId = req.user.id;
@@ -392,7 +389,7 @@ allocation.get(
 //Get Full Report for all allocations
 allocation.get(
   '/report',
-  [authenticator, admin, planner, statist, roleChecker, validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
   (req: Request, res: Response) => {
     allocationService
       .fullReport()

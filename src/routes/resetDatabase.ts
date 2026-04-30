@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import express, { Request, Response } from 'express';
-import { admin } from '../authorization/admin.js';
-import { roleChecker } from '../authorization/roleChecker.js';
+import { allowRoles } from '../authorization/allowRoles.js';
 import { authenticator } from '../authorization/userValidation.js';
 import db_knex from '../db/index_knex.js';
 import {
@@ -24,7 +23,7 @@ const sqlStatements = fs
 //resetting the database with knex
 resetDatabase.get(
   '/',
-  [authenticator, admin, roleChecker, validate],
+  [authenticator, allowRoles('admin'), validate],
   (req: Request, res: Response) => {
     process.env.BE_DEVELOPMENT_PHASE === 'true'
       ? db_knex
