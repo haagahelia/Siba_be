@@ -9,12 +9,14 @@ import {
 } from '../responseHandler/index.js';
 import { Space } from '../types/custom.js';
 import logger from '../utils/logger.js';
+import { validateBuildingId } from '../validationHandler/building.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import {
   validateMultiSpacePost,
   validateSpacePost,
   validateSpacePut,
 } from '../validationHandler/space.js';
+import { validateSpaceTypeId } from '../validationHandler/spaceType.js';
 
 const space = express.Router();
 
@@ -259,7 +261,8 @@ space.post(
 // Delete space by id
 space.delete(
   '/:id',
-  [authenticator, allowRoles('admin'), validate],
+  validateIdObl,
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Space')
       .where('id', req.params.id)
@@ -328,7 +331,8 @@ space.put(
 //Allow fetching spaces by a specific building ID.
 space.get(
   '/byBuilding/:buildingId',
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  validateBuildingId,
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const { buildingId } = req.params;
     db_knex('Space')
@@ -364,7 +368,8 @@ space.get(
 //Allow fetching spaces by a specific SpaceType ID.
 space.get(
   '/bySpaceType/:spaceTypeId',
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  validateSpaceTypeId,
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const { spaceTypeId } = req.params;
     db_knex('Space')
@@ -400,7 +405,8 @@ space.get(
 // fetching total no. of allocations associated with space by space id
 space.get(
   '/:id/numberOfAllocSpaces',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateIdObl,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const spaceId = req.params.id;
     db_knex('AllocSpace')
@@ -428,7 +434,8 @@ space.get(
 //fetching allocation rounds associated with space by id
 space.get(
   '/:id/allocRoundsAssociatedWithSpace',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateIdObl,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const spaceId = req.params.id;
     db_knex('AllocSpace')

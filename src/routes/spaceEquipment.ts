@@ -7,9 +7,11 @@ import {
   requestErrorHandler,
   successHandler,
 } from '../responseHandler/index.js';
-import { validate } from '../validationHandler/index.js';
 import { validateSpaceId } from '../validationHandler/space.js';
-import { validateSpaceEquipmentPost } from '../validationHandler/spaceEquipment.js';
+import {
+  validateSpaceAndEquipmentId,
+  validateSpaceEquipmentPost,
+} from '../validationHandler/spaceEquipment.js';
 
 const spaceequipment = express.Router();
 
@@ -78,7 +80,8 @@ spaceequipment.post(
 // Removing an equipment from a space using knex:
 spaceequipment.delete(
   '/delete/:spaceId/:equipmentId',
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  validateSpaceAndEquipmentId,
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const spaceId = req.params.spaceId;
     const equipmentId = req.params.equipmentId;

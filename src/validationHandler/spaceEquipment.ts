@@ -6,3 +6,8 @@ export const validateSpaceEquipmentPost = finalizeValidator(
   validateSpaceId,
   validateEquipmentId,
 );
+
+export const validateSpaceAndEquipmentId = finalizeValidator(
+  validateSpaceId,
+  validateEquipmentId,
+);

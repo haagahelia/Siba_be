@@ -245,7 +245,8 @@ building.get(
 // Count the number of spaces associated with a specific building ID
 building.get(
   '/spaceCount/:id',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateIdObl,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const { id } = req.params;
     db_knex('Space')

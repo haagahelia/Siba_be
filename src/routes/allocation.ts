@@ -10,15 +10,27 @@ import allocationService from '../services/allocation.js';
 import programService from '../services/program.js';
 import logger from '../utils/logger.js';
 import { validateAllocRoundId } from '../validationHandler/allocRound.js';
-import { validate, validateIdObl } from '../validationHandler/index.js';
+import {
+  createIdValidatorChain,
+  finalizeValidator,
+  validate,
+  validateIdObl,
+} from '../validationHandler/index.js';
 import { validateAllocRoundIdAndSubjectId } from '../validationHandler/subject.js';
 
 const allocation = express.Router();
+const validateAllocationRoundId = finalizeValidator(
+  createIdValidatorChain('allocationRoundId'),
+);
+const validateSubid = finalizeValidator(createIdValidatorChain('subid'));
+const validateRoomid = finalizeValidator(createIdValidatorChain('roomid'));
+const validateRoomId = finalizeValidator(createIdValidatorChain('roomId'));
 
 /* Get rooms with allocated hours by allocationRoundId */
 allocation.get(
   '/:allocationRoundId/rooms',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateAllocationRoundId,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const id = req.params.allocationRoundId;
     allocationService
@@ -169,7 +181,9 @@ allocation.get(
 // eqpt = equipment
 allocation.get(
   '/missing-eqpt/subject/:subid/room/:roomid',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateSubid,
+  validateRoomid,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const subjectId = req.params.subid;
     const spaceId = req.params.roomid;
@@ -197,7 +211,9 @@ allocation.get(
 /* Get all allocated subjects by RoomId, allocRound */
 allocation.get(
   '/:id/subjects/:roomId',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateIdObl,
+  validateRoomId,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.id;
     const roomId = req.params.roomId;
@@ -353,7 +369,8 @@ allocation.post(
 //Get data for allocation report to excel
 allocation.get(
   '/report/:allocRoundId',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateAllocRoundId,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     allocationService
@@ -370,7 +387,8 @@ allocation.get(
 // get data for plannerReport to excel
 allocation.get(
   '/plannerreport/:allocRoundId',
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  validateAllocRoundId,
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     const userId = req.user.id;
