@@ -15,7 +15,10 @@ import { DepartmentPlanner } from '../types/custom.js';
 import logger from '../utils/logger.js';
 import { validate, validateIdObl } from '../validationHandler/index.js';
 import {
+  validateForgetPasswordPost,
+  validateLoginPost,
   validateMultiUserPost,
+  validateResetPasswordPost,
   validateUserPost,
   validateUserPut,
 } from '../validationHandler/user.js';
@@ -173,9 +176,7 @@ user.get(
 );
 
 // handling login for registered user
-user.post('/login', (req, res) => {
-  console.log(`Login, password: ${req.body.password}`); // TODO!!! UNSAFE!!!
-
+user.post('/login', validateLoginPost, (req: Request, res: Response) => {
   db_knex('User')
     .select('id', 'email', 'password', 'isAdmin', 'isPlanner', 'isStatist')
     .where('email', req.body.email)
@@ -237,65 +238,73 @@ user.post('/login', (req, res) => {
 });
 
 //forget password handling
-user.post('/forget-password', (req, res) => {
-  const { email } = req.body;
-  db_knex('User')
-    .select('id', 'email')
-    .where('email', email)
-    .then((data) => {
-      if (data.length === 0) {
-        requestErrorHandler(req, res, 'Email not registered yet!');
-      } else {
-        const token = jsonwebtoken.sign(
-          { id: data[0].id, email: email },
-          process.env.SECRET_TOKEN as string,
-          { expiresIn: '24h' },
-        );
+user.post(
+  '/forget-password',
+  validateForgetPasswordPost,
+  (req: Request, res: Response) => {
+    const { email } = req.body;
+    db_knex('User')
+      .select('id', 'email')
+      .where('email', email)
+      .then((data) => {
+        if (data.length === 0) {
+          requestErrorHandler(req, res, 'Email not registered yet!');
+        } else {
+          const token = jsonwebtoken.sign(
+            { id: data[0].id, email: email },
+            process.env.SECRET_TOKEN as string,
+            { expiresIn: '24h' },
+          );
 
-        const user = {
-          id: data[0].id,
-          token: token,
-        };
+          const user = {
+            id: data[0].id,
+            token: token,
+          };
 
-        successHandler(req, res, user, 'Token regenerated successfully');
-      }
-    })
-    .catch((error) => {
-      dbErrorHandler(req, res, error, '/forget-password: Database error');
-    });
-});
+          successHandler(req, res, user, 'Token regenerated successfully');
+        }
+      })
+      .catch((error) => {
+        dbErrorHandler(req, res, error, '/forget-password: Database error');
+      });
+  },
+);
 
 //reset password handling
-user.post('/reset-password/:id/:token', (req: Request, res: Response) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
+user.post(
+  '/reset-password/:id/:token',
+  validateResetPasswordPost,
+  (req: Request, res: Response) => {
+    const { id, token } = req.params;
+    const { password } = req.body;
 
-  jsonwebtoken.verify(
-    token,
-    process.env.SECRET_TOKEN as string,
-    (err, decoded) => {
-      console.log('decoded: ', decoded);
-      if (err) {
-        requestErrorHandler(req, res, 'Could not verify token!');
-      } else {
-        const hashedPassword = bcrypt.hashSync(password, 10);
-        db_knex('User')
-          .update('password', hashedPassword)
-          .where('id', id)
-          .then((data) => {
-            if (data) {
-              successHandler(req, res, data, 'Password reset successful');
-            } else {
-              requestErrorHandler(req, res, 'Could not reset! Sorry');
-            }
-          })
-          .catch((error) => {
-            dbErrorHandler(req, res, error, 'Reset failed!');
-          });
-      }
-    },
-  );
-});
+    jsonwebtoken.verify(
+      token,
+      process.env.SECRET_TOKEN as string,
+      (err, decoded) => {
+        console.log('decoded: ', decoded);
+        if (err) {
+          requestErrorHandler(req, res, 'Could not verify token!');
+        } else {
+          const hashedPassword = bcrypt.hashSync(password, 10);
+          db_knex('User')
+            .update('password', hashedPassword)
+            .where('id', id)
+            .then((data) => {
+              if (data) {
+                successHandler(req, res, data, 'Password reset successful');
+              } else {
+                requestErrorHandler(req, res, 'Could not reset! Sorry');
+              }
+            })
+            .catch((error) => {
+              dbErrorHandler(req, res, error, 'Reset failed!');
+            });
+        }
+      },
+    );
+  },
+);
 
 // Changing userdata
 user.put(

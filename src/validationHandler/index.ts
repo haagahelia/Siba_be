@@ -307,24 +307,36 @@ export const createBoolValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   check(`${fieldName}`)
-    .matches(/[0-1]/)
-    .withMessage('Must be a number between 0 and 1')
-    .bail()
-    .notEmpty()
+    .exists({ checkNull: true, checkFalsy: false })
     .withMessage('Cannot be empty')
-    .bail(),
+    .bail()
+    .customSanitizer((value) => {
+      if (value === true) return 1;
+      if (value === false) return 0;
+      return value;
+    })
+    .isIn([0, 1, '0', '1'])
+    .withMessage('Must be 0 or 1')
+    .bail()
+    .toInt(),
 ];
 
 export const createMultiBoolValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   body(`*.${fieldName}`)
-    .matches(/[0-1]/)
-    .withMessage('Must be a number between 0 and 1')
-    .bail()
-    .notEmpty()
+    .exists({ checkNull: true, checkFalsy: false })
     .withMessage('Cannot be empty')
-    .bail(),
+    .bail()
+    .customSanitizer((value) => {
+      if (value === true) return 1;
+      if (value === false) return 0;
+      return value;
+    })
+    .isIn([0, 1, '0', '1'])
+    .withMessage('Must be 0 or 1')
+    .bail()
+    .toInt(),
 ];
 
 export const createMultiEmailValidatorChain = (
@@ -337,7 +349,7 @@ export const createFloatValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   body(`${fieldName}`)
-    .matches(/^[0-9]*(.[0-9]{1,2})?$/)
+    .matches(/^[0-9]+(\.[0-9]{1,2})?$/)
     .withMessage('Must be a number')
     .bail()
     .isFloat()
@@ -350,7 +362,7 @@ export const createMultiFloatValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   body(`*.${fieldName}`)
-    .matches(/^[0-9]*(.[0-9]{1,2})?$/)
+    .matches(/^[0-9]+(\.[0-9]{1,2})?$/)
     .withMessage('Must be a number')
     .bail()
     .isFloat()
