@@ -1,4 +1,5 @@
 import {
+  createBodyArrayValidatorChain,
   createIdValidatorChain,
   finalizeValidator,
   validateDescription,
@@ -18,6 +19,7 @@ export const validateDepartmentPost = finalizeValidator(
 );
 
 export const validateDepartmentMultiPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   validateMultiDescription,
 );

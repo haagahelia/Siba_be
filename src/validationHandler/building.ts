@@ -1,4 +1,5 @@
 import {
+  createBodyArrayValidatorChain,
   createIdValidatorChain,
   finalizeValidator,
   validateDescription,
@@ -25,6 +26,7 @@ export const validateBuildingPut = finalizeValidator(
 // This is a bit different as body can have multiple objects,
 // => MultiPost!!!
 export const validateBuildingMultiPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   validateMultiDescription,
 );

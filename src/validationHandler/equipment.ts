@@ -1,4 +1,5 @@
 import {
+  createBodyArrayValidatorChain,
   createBoolValidatorChain,
   createIdValidatorChain,
   createMultiBoolValidatorChain,
@@ -29,6 +30,7 @@ export const validateEquipmentPut = finalizeValidator(
 );
 
 export const validateEquipmentMultiPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   createMultiBoolValidatorChain('isMovable'),
   createMultiNumberValidatorChain('priority'),

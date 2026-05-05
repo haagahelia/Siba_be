@@ -1,4 +1,5 @@
 import {
+  createBodyArrayValidatorChain,
   createIdValidatorChain,
   finalizeValidator,
   validateAcronymObl,
@@ -30,6 +31,7 @@ export const validateSpaceTypePut = finalizeValidator(
 // This is a bit different as body can have multiple objects,
 // => MultiPost!!!
 export const validateSpaceTypeMultiPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   validateMultiAcronymObl,
   validateMultiDescription,

@@ -267,6 +267,15 @@ export const createMultiDescriptionValidatorChain = (
     .bail(),
 ];
 
+export const createBodyArrayValidatorChain = (
+  maxItems = 1000,
+): ValidationChain[] => [
+  body()
+    .isArray({ min: 1, max: maxItems })
+    .withMessage(`Request body must be an array with 1-${maxItems} items`)
+    .bail(),
+];
+
 export const createTimeValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
@@ -295,8 +304,8 @@ export const createMultiTimeValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   body(`*.${fieldName}`)
-    .matches(/^([0-1][0-9]):([0-5][0-9])(:[0-5][0-9])?$/)
-    .withMessage('Accepted format: 00:00 or 00:00:00')
+    .matches(/^(0*[2][0-3]|0*[1][0-9]|0*[0-9]):([0-5][0-9])(:[0-5][0-9])?$/)
+    .withMessage('Accepted format: 00:00 or 00:00:00, from 00:00 to 23:59')
     .bail()
     .notEmpty()
     .withMessage('Cannot be empty')
@@ -339,6 +348,23 @@ export const createMultiBoolValidatorChain = (
     .toInt(),
 ];
 
+export const createOptionalBoolValidatorChain = (
+  fieldName: string,
+): ValidationChain[] => [
+  check(`${fieldName}`)
+    .optional()
+    .customSanitizer((value) => {
+      if (value === true) return 1;
+      if (value === false) return 0;
+      return value;
+    })
+    .isIn([0, 1, '0', '1'])
+    .withMessage(`${fieldName} must be 0 or 1`)
+    .bail()
+    .toInt(),
+];
+
+// TODO(dev-only): multi-user import intentionally keeps email validation loose in this development version.
 export const createMultiEmailValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [

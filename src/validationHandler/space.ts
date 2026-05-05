@@ -1,5 +1,6 @@
 import { validateBuildingId } from './building.js';
 import {
+  createBodyArrayValidatorChain,
   createBoolValidatorChain,
   createDescriptionValidatorChain,
   createFloatValidatorChain,
@@ -49,6 +50,7 @@ export const validateSpacePut = finalizeValidator(
 );
 
 export const validateMultiSpacePost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   createMultiFloatValidatorChain('area'),
   validateMultiSpaceInfo,

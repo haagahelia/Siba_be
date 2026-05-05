@@ -1,5 +1,6 @@
 import { validateAllocRoundId } from './allocRound.js';
 import {
+  createBodyArrayValidatorChain,
   createBoolValidatorChain,
   createFloatValidatorChain,
   createIdValidatorChain,
@@ -50,6 +51,7 @@ export const validateSubjectPut = finalizeValidator(
 // This is an example of rare need: When posting several Subject objects in request
 // body as JSON array
 export const validateSubjectMultiPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   validateMultiNameObl,
   createMultiNumberValidatorChain('groupCount'),
   createMultiNumberValidatorChain('groupSize'),

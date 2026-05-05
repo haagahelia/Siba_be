@@ -1,5 +1,6 @@
 import { body, check, param } from 'express-validator';
 import {
+  createBodyArrayValidatorChain,
   createBoolValidatorChain,
   createIdValidatorChain,
   createMultiBoolValidatorChain,
@@ -13,6 +14,7 @@ export const validateUserId = finalizeValidator(
   createIdValidatorChain('userId'),
 );
 
+// TODO(dev-only): keep user create/update validation intentionally loose in this development version.
 export const validateUserPost = finalizeValidator(
   check('email').notEmpty().withMessage('Email cannot be empty').bail(),
   createBoolValidatorChain('isAdmin'),
@@ -21,6 +23,7 @@ export const validateUserPost = finalizeValidator(
 );
 
 export const validateMultiUserPost = finalizeValidator(
+  createBodyArrayValidatorChain(),
   createMultiEmailValidatorChain('email'),
   createMultiBoolValidatorChain('isAdmin'),
   createMultiBoolValidatorChain('isPlanner'),
