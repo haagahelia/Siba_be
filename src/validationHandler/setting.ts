@@ -1,12 +1,16 @@
 import {
+  finalizeValidator,
   validateDescription,
   validateIdObl,
   validateVariableObl,
 } from './index.js';
 
-export const validateSettingPost = [
-  ...validateVariableObl,
-  ...validateDescription,
-];
+export const validateSettingPost = finalizeValidator(
+  validateVariableObl,
+  validateDescription,
+);
 
-export const validateSettingPut = [...validateSettingPost, ...validateIdObl];
+export const validateSettingPut = finalizeValidator(
+  validateSettingPost,
+  validateIdObl,
+);

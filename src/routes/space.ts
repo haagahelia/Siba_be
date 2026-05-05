@@ -97,7 +97,7 @@ space.get(
 space.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const id = req.params.id;
     db_knex('Space')
@@ -144,7 +144,7 @@ space.get(
 space.post(
   '/',
   validateSpacePost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const spaceData: Space = {
       name: req.body.name,
@@ -189,7 +189,7 @@ space.post(
 space.post(
   '/multi',
   validateMultiSpacePost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     logger.debug('multi space post req body:', req.body);
     const spaceData: Space[] = [];
@@ -286,7 +286,7 @@ space.delete(
 space.put(
   '/',
   validateSpacePut,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const spaceId = req.body.id;
     const updatedSpaceData: Space = {

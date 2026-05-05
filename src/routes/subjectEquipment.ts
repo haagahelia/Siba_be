@@ -8,7 +8,6 @@ import {
   successHandler,
 } from '../responseHandler/index.js';
 import logger from '../utils/logger.js';
-import { validate } from '../validationHandler/index.js';
 import { validateSubjectId } from '../validationHandler/subject.js';
 import {
   validateSubjectAndEquipmentId,
@@ -21,7 +20,7 @@ const subjectequipment = express.Router();
 subjectequipment.get(
   '/getEquipment/:subjectId',
   validateSubjectId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const subjectId = req.params.subjectId;
     db_knex
@@ -59,7 +58,7 @@ subjectequipment.get(
 subjectequipment.post(
   '/post',
   validateSubjectEquipmentPost,
-  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can add subjectEquipment to a subject
+  [authenticator, allowRoles('admin', 'planner')], // Only admin and planner can add subjectEquipment to a subject
   async (req: Request, res: Response) => {
     const subjectId = req.body.subjectId;
     const equipmentId = req.body.equipmentId;
@@ -170,7 +169,7 @@ subjectequipment.post(
 subjectequipment.put(
   '/update',
   validateSubjectEquipmentPost,
-  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can update subjectEquipment to a subject
+  [authenticator, allowRoles('admin', 'planner')], // Only admin and planner can update subjectEquipment to a subject
   async (req: Request, res: Response) => {
     try {
       // Check if allocRound of the subject is Read only
@@ -267,7 +266,7 @@ subjectequipment.put(
 subjectequipment.delete(
   '/delete/:subjectId/:equipmentId',
   validateSubjectAndEquipmentId,
-  [authenticator, allowRoles('admin', 'planner'), validate], // Only admin and planner can delete subjectEquipment
+  [authenticator, allowRoles('admin', 'planner')], // Only admin and planner can delete subjectEquipment
   async (req: Request, res: Response) => {
     const subjectId = req.params.subjectId;
     const equipmentId = req.params.equipmentId;

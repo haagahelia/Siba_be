@@ -62,7 +62,7 @@ allocround.get(
 allocround.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     db_knex('AllocRound')
       .select(
@@ -99,7 +99,7 @@ allocround.get(
 allocround.post(
   '/',
   validateAllocRoundPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const allocRound = {
       name: req.body.name,
@@ -139,7 +139,7 @@ allocround.post(
 allocround.post(
   '/copyAllocRound',
   validateAllocRoundCopyPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   async (req: Request, res: Response) => {
     const copiedAllocRoundId = Number(req.body.copiedAllocRoundId);
 
@@ -228,7 +228,7 @@ allocround.post(
 allocround.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -279,7 +279,7 @@ allocround.delete(
 allocround.put(
   '/',
   validateAllocRoundPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const allocRoundId = req.body.id;
     let updateData = {};

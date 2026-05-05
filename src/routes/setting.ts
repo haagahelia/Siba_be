@@ -45,7 +45,7 @@ setting.get(
 setting.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .select()
@@ -73,7 +73,7 @@ setting.get(
 setting.post(
   '/',
   validateSettingPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .insert(req.body)
@@ -110,7 +110,7 @@ setting.post(
 setting.put(
   '/',
   validateSettingPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     if (!req.body.variable) {
       requestErrorHandler(req, res, 'Setting variable is missing.');
@@ -159,7 +159,7 @@ setting.put(
 setting.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db('GlobalSetting')
       .select()

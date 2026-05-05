@@ -75,7 +75,7 @@ building.get(
 building.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('Building')
       .select()
@@ -106,7 +106,7 @@ building.get(
 building.post(
   '/',
   validateBuildingPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Building')
       .insert(req.body)
@@ -129,7 +129,7 @@ building.post(
 building.post(
   '/multi',
   validateBuildingMultiPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Building')
       .insert(req.body)
@@ -152,7 +152,7 @@ building.post(
 building.put(
   '/',
   validateBuildingPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     if (!req.body.name) {
       requestErrorHandler(req, res, 'Building name is missing.');
@@ -187,7 +187,7 @@ building.put(
 building.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Building')
       .select()
@@ -215,7 +215,7 @@ building.delete(
 building.get(
   '/:buildingId/numberOfSpaces',
   validateBuildingId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const buildingId = req.params.buildingId;
 

@@ -28,7 +28,7 @@ const user = express.Router();
 user.post(
   '/',
   validateUserPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     // REMOVE AFTER SOME TESTING!!! SECURITY!!!
@@ -62,7 +62,7 @@ user.post(
 user.post(
   '/multi',
   validateMultiUserPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   async (req: Request, res: Response) => {
     const userDepartmentPlanner: DepartmentPlanner[] = [];
     // insert user data
@@ -301,7 +301,7 @@ user.post('/reset-password/:id/:token', (req: Request, res: Response) => {
 user.put(
   '/',
   validateUserPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const userData = {
       id: req.body.id,
@@ -330,7 +330,7 @@ user.put(
 user.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const id = req.params.id;
     db_knex('User')

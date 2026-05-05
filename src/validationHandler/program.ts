@@ -1,22 +1,28 @@
 import {
   createIdValidatorChain,
   createMultiNameValidatorChain,
+  finalizeValidator,
   validateIdObl,
   validateMultiNameObl,
   validateNameObl,
 } from './index.js';
 
-export const validateProgramId = [...createIdValidatorChain('programId')];
+export const validateProgramId = finalizeValidator(
+  createIdValidatorChain('programId'),
+);
 
 // this needs to continue
-export const validateProgramPost = [
-  ...validateNameObl,
-  ...createIdValidatorChain('departmentId'),
-];
+export const validateProgramPost = finalizeValidator(
+  validateNameObl,
+  createIdValidatorChain('departmentId'),
+);
 
-export const validateProgramPut = [...validateProgramPost, ...validateIdObl];
+export const validateProgramPut = finalizeValidator(
+  validateProgramPost,
+  validateIdObl,
+);
 
-export const validateProgramMultiPost = [
-  ...validateMultiNameObl,
-  ...createMultiNameValidatorChain('department'),
-];
+export const validateProgramMultiPost = finalizeValidator(
+  validateMultiNameObl,
+  createMultiNameValidatorChain('department'),
+);

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 /*
   ---- EXPRESS VALIDATOR ----
   Express-validator is a library that can be used to validate the data
@@ -26,6 +26,21 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
     next();
   }
 };
+
+type ValidatorMiddleware = ValidationChain | RequestHandler;
+type ValidatorInput = ValidatorMiddleware | ValidatorMiddleware[];
+
+const flattenValidatorInput = (
+  validatorInput: ValidatorInput,
+): ValidatorMiddleware[] =>
+  Array.isArray(validatorInput) ? validatorInput : [validatorInput];
+
+export const finalizeValidator = (
+  ...validatorInputs: ValidatorInput[]
+): ValidatorMiddleware[] => [
+  ...validatorInputs.flatMap(flattenValidatorInput),
+  validate,
+];
 
 export const timeFormatString: string = '%H:%i'; // 23:25
 export const timestampFormatString: string = '%a %x-%m-%d %H:%i","fi_FI';
@@ -148,7 +163,7 @@ export const createNumberValidatorChain = (
     .bail(),
 ];
 
-export const createNumberCountNonZeroIntegerValidatorChain = (
+export const createNonZeroPositiveIntegerValidatorChain = (
   fieldName: string,
 ): ValidationChain[] => [
   check(`${fieldName}`)
@@ -159,6 +174,9 @@ export const createNumberCountNonZeroIntegerValidatorChain = (
     .withMessage('Cannot be Empty')
     .bail(),
 ];
+
+export const createNumberCountNonZeroIntegerValidatorChain =
+  createNonZeroPositiveIntegerValidatorChain;
 
 export const createMultiNumberValidatorChain = (
   fieldName: string,
@@ -341,34 +359,49 @@ export const createMultiFloatValidatorChain = (
     .bail(),
 ];
 
-export const validateIdObl = [...createIdValidatorChain('id')];
+export const idOblRules = createIdValidatorChain('id');
 
-export const validateNameObl = [...createNameValidatorChain('name')];
+export const nameOblRules = createNameValidatorChain('name');
 
-export const validateAcronymObl = [...createAcronymValidatorChain('acronym')];
+export const acronymOblRules = createAcronymValidatorChain('acronym');
 
-export const validateVariableObl = [
-  ...createVariableValidatorChain('variable'),
-];
+export const variableOblRules = createVariableValidatorChain('variable');
 
-export const validateDescription = [
-  ...createDescriptionValidatorChain('description'),
-];
+export const descriptionRules = createDescriptionValidatorChain('description');
 
-export const validateDescriptionObl = [
-  ...createDescriptionValidatorChainObl('description'),
-];
+export const descriptionOblRules =
+  createDescriptionValidatorChainObl('description');
 
-export const validateMultiNameObl = [...createMultiNameValidatorChain('name')];
+export const multiNameOblRules = createMultiNameValidatorChain('name');
 
-export const validateMultiVariableObl = [
-  ...createMultiVariableValidatorChain('variable'),
-];
+export const multiVariableOblRules =
+  createMultiVariableValidatorChain('variable');
 
-export const validateMultiAcronymObl = [
-  ...createMultiAcronymValidatorChain('acronym'),
-];
+export const multiAcronymOblRules = createMultiAcronymValidatorChain('acronym');
 
-export const validateMultiDescription = [
-  ...createMultiDescriptionValidatorChain('description'),
-];
+export const multiDescriptionRules =
+  createMultiDescriptionValidatorChain('description');
+
+export const validateIdObl = finalizeValidator(idOblRules);
+
+export const validateNameObl = finalizeValidator(nameOblRules);
+
+export const validateAcronymObl = finalizeValidator(acronymOblRules);
+
+export const validateVariableObl = finalizeValidator(variableOblRules);
+
+export const validateDescription = finalizeValidator(descriptionRules);
+
+export const validateDescriptionObl = finalizeValidator(descriptionOblRules);
+
+export const validateMultiNameObl = finalizeValidator(multiNameOblRules);
+
+export const validateMultiVariableObl = finalizeValidator(
+  multiVariableOblRules,
+);
+
+export const validateMultiAcronymObl = finalizeValidator(multiAcronymOblRules);
+
+export const validateMultiDescription = finalizeValidator(
+  multiDescriptionRules,
+);

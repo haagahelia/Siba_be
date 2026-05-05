@@ -64,7 +64,7 @@ program.get(
 program.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex
       .select()
@@ -117,7 +117,7 @@ program.get(
 program.get(
   '/userprograms/:userId',
   validateUserId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('Program')
       .select('Program.id')
@@ -148,7 +148,7 @@ program.get(
 program.post(
   '/',
   validateProgramPost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const newProgram = {
       name: req.body.name,
@@ -178,7 +178,7 @@ program.post(
 program.post(
   '/multi',
   validateProgramMultiPost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     console.log(req.body);
     const programData: ProgramWithDepartmentId[] = [];
@@ -229,7 +229,7 @@ program.post(
 program.put(
   '/',
   validateProgramPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const id = req.body.id;
     const name = req.body.name;
@@ -260,7 +260,7 @@ program.put(
 program.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const id = req.params.id;
 
@@ -288,7 +288,7 @@ program.delete(
 program.get(
   '/:programId/numberOfLessons',
   validateProgramId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const programId = req.params.programId;
 

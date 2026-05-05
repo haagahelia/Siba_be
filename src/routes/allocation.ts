@@ -46,7 +46,7 @@ allocation.get(
 allocation.get(
   '/:id/program',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const id = req.params.id;
     programService
@@ -93,7 +93,7 @@ allocation.get(
 allocation.get(
   '/:allocRoundId/rooms/:subjectId',
   validateAllocRoundIdAndSubjectId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.allocRoundId;
     const subjectId = req.params.subjectId;
@@ -124,7 +124,7 @@ allocation.get(
 allocation.get(
   '/:id/subject/unallocated',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.params.id;
     logger.debug(`Alloc round id for unallocated: ${allocRoundId}`);
@@ -147,7 +147,7 @@ allocation.get(
 allocation.get(
   '/subject/:id/rooms',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   async (req: Request, res: Response) => {
     const subjectId = req.params.id;
     await allocationService
@@ -225,7 +225,7 @@ allocation.get(
 allocation.post(
   '/reset',
   validateAllocRoundId,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 
@@ -268,7 +268,7 @@ allocation.post(
 allocation.post(
   '/abort',
   validateAllocRoundId,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 
@@ -311,7 +311,7 @@ allocation.post(
 allocation.post(
   '/start',
   validateAllocRoundId,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     const allocRoundId = req.body.allocRoundId;
 

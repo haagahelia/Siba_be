@@ -86,7 +86,7 @@ spaceType.get(
 spaceType.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .select()
@@ -114,7 +114,7 @@ spaceType.get(
 spaceType.post(
   '/',
   validateSpaceTypePost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .insert(req.body)
@@ -137,7 +137,7 @@ spaceType.post(
 spaceType.post(
   '/multi',
   validateSpaceTypeMultiPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .insert(req.body)
@@ -160,7 +160,7 @@ spaceType.post(
 spaceType.put(
   '/',
   validateSpaceTypePut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .where('id', req.body.id)
@@ -190,7 +190,7 @@ spaceType.put(
 spaceType.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('SpaceType')
       .select()

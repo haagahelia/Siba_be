@@ -8,7 +8,6 @@ import {
   successHandler,
 } from '../responseHandler/index.js';
 import { validateUserIdAndDepartmentId } from '../validationHandler/departmentPlanner.js';
-import { validate } from '../validationHandler/index.js';
 import { validateUserId } from '../validationHandler/user.js';
 
 const departmentplanner = express.Router();
@@ -42,7 +41,6 @@ departmentplanner.get(
 departmentplanner.get(
   '/:userId',
   validateUserId,
-  [validate],
   (req: Request, res: Response) => {
     const userId = req.params.userId;
     db_knex
@@ -73,7 +71,6 @@ departmentplanner.get(
 departmentplanner.post(
   '/',
   validateUserIdAndDepartmentId,
-  [validate],
   (req: Request, res: Response) => {
     const plannerData = {
       userId: req.body.userId,
@@ -107,7 +104,7 @@ departmentplanner.post(
 departmentplanner.put(
   '/',
   validateUserIdAndDepartmentId,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     const plannerData = {
       userId: req.body.userId,
@@ -139,7 +136,6 @@ departmentplanner.put(
 departmentplanner.delete(
   '/:userId/:departmentId',
   validateUserIdAndDepartmentId,
-  [validate],
   (req: Request, res: Response) => {
     const userId = req.params.userId;
     const departmentId = req.params.departmentId;

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import {
   createIdValidatorChain,
+  finalizeValidator,
   validateDescriptionObl,
   validateIdObl,
   validateNameObl,
@@ -22,25 +23,27 @@ const validateIsReadOnly = (
   next();
 };
 
-export const validateAllocRoundId = [...createIdValidatorChain('allocRoundId')];
-export const validateCopiedAllocRoundId = [
-  ...createIdValidatorChain('copiedAllocRoundId'),
-];
+export const validateAllocRoundId = finalizeValidator(
+  createIdValidatorChain('allocRoundId'),
+);
+export const validateCopiedAllocRoundId = finalizeValidator(
+  createIdValidatorChain('copiedAllocRoundId'),
+);
 
-export const validateAllocRoundPost = [
-  ...validateNameObl,
+export const validateAllocRoundPost = finalizeValidator(
+  validateNameObl,
   validateIsReadOnly,
-  ...validateUserId,
-  ...validateDescriptionObl,
-];
+  validateUserId,
+  validateDescriptionObl,
+);
 
-export const validateAllocRoundCopyPost = [
-  ...validateAllocRoundPost,
-  ...validateUserId,
-  ...validateCopiedAllocRoundId,
-];
+export const validateAllocRoundCopyPost = finalizeValidator(
+  validateAllocRoundPost,
+  validateUserId,
+  validateCopiedAllocRoundId,
+);
 
-export const validateAllocRoundPut = [
-  ...validateIdObl,
-  ...validateAllocRoundPost,
-];
+export const validateAllocRoundPut = finalizeValidator(
+  validateIdObl,
+  validateAllocRoundPost,
+);

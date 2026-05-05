@@ -7,10 +7,11 @@ import {
   createMultiFloatValidatorChain,
   createMultiNumberValidatorChain,
   createMultiTimeValidatorChain,
-  createNumberCountNonZeroIntegerValidatorChain,
+  createNonZeroPositiveIntegerValidatorChain,
   createNumberValidatorChain,
   createTimeLengthValidatorChainHoursAndMinutes,
   createTimeValidatorChain,
+  finalizeValidator,
   validateIdObl,
   validateMultiNameObl,
   validateNameObl,
@@ -19,35 +20,40 @@ import { validateProgramId } from './program.js';
 import { validateSpaceTypeId } from './spaceType.js';
 
 // This is a validator used by other routes which need subjectId as a foreign key
-export const validateSubjectId = [...createIdValidatorChain('subjectId')];
+export const validateSubjectId = finalizeValidator(
+  createIdValidatorChain('subjectId'),
+);
 
-export const validateAllocRoundIdAndSubjectId = [
-  ...validateAllocRoundId,
-  ...validateSubjectId,
-];
+export const validateAllocRoundIdAndSubjectId = finalizeValidator(
+  validateAllocRoundId,
+  validateSubjectId,
+);
 
-export const validateSubjectPost = [
-  ...validateNameObl,
-  ...createNumberCountNonZeroIntegerValidatorChain('groupSize'),
-  ...createNumberCountNonZeroIntegerValidatorChain('groupCount'),
-  ...createTimeLengthValidatorChainHoursAndMinutes('sessionLength'),
-  ...createNumberCountNonZeroIntegerValidatorChain('sessionCount'),
-  ...createFloatValidatorChain('area'),
-  ...createBoolValidatorChain('isNoisy'),
-  ...validateProgramId,
-  ...validateSpaceTypeId,
-];
+export const validateSubjectPost = finalizeValidator(
+  validateNameObl,
+  createNonZeroPositiveIntegerValidatorChain('groupSize'),
+  createNonZeroPositiveIntegerValidatorChain('groupCount'),
+  createTimeLengthValidatorChainHoursAndMinutes('sessionLength'),
+  createNonZeroPositiveIntegerValidatorChain('sessionCount'),
+  createFloatValidatorChain('area'),
+  createBoolValidatorChain('isNoisy'),
+  validateProgramId,
+  validateSpaceTypeId,
+);
 
 // See how the PUT is usually just POST + id that exists for PUT already
-export const validateSubjectPut = [...validateIdObl, ...validateSubjectPost];
+export const validateSubjectPut = finalizeValidator(
+  validateIdObl,
+  validateSubjectPost,
+);
 
 // This is an example of rare need: When posting several Subject objects in request
 // body as JSON array
-export const validateSubjectMultiPost = [
-  ...validateMultiNameObl,
-  ...createMultiNumberValidatorChain('groupCount'),
-  ...createMultiNumberValidatorChain('groupSize'),
-  ...createMultiTimeValidatorChain('sessionLength'),
-  ...createMultiFloatValidatorChain('area'),
-  ...createMultiBoolValidatorChain('isNoisy'),
-];
+export const validateSubjectMultiPost = finalizeValidator(
+  validateMultiNameObl,
+  createMultiNumberValidatorChain('groupCount'),
+  createMultiNumberValidatorChain('groupSize'),
+  createMultiTimeValidatorChain('sessionLength'),
+  createMultiFloatValidatorChain('area'),
+  createMultiBoolValidatorChain('isNoisy'),
+);

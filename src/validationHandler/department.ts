@@ -1,5 +1,6 @@
 import {
   createIdValidatorChain,
+  finalizeValidator,
   validateDescription,
   validateIdObl,
   validateMultiDescription,
@@ -7,19 +8,21 @@ import {
   validateNameObl,
 } from './index.js';
 
-export const validateDepartmentId = [...createIdValidatorChain('departmentId')];
+export const validateDepartmentId = finalizeValidator(
+  createIdValidatorChain('departmentId'),
+);
 
-export const validateDepartmentPost = [
-  ...validateNameObl,
-  ...validateDescription,
-];
+export const validateDepartmentPost = finalizeValidator(
+  validateNameObl,
+  validateDescription,
+);
 
-export const validateDepartmentMultiPost = [
-  ...validateMultiNameObl,
-  ...validateMultiDescription,
-];
+export const validateDepartmentMultiPost = finalizeValidator(
+  validateMultiNameObl,
+  validateMultiDescription,
+);
 
-export const validateDepartmentPut = [
-  ...validateDepartmentPost,
-  ...validateIdObl,
-];
+export const validateDepartmentPut = finalizeValidator(
+  validateDepartmentPost,
+  validateIdObl,
+);

@@ -17,7 +17,7 @@ const spaceequipment = express.Router();
 spaceequipment.get(
   '/getEquipment/:spaceId',
   validateSpaceId, // Add a validation for spaceId
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const spaceId = req.params.spaceId;
     db_knex

@@ -64,7 +64,6 @@ subject.get('/', [validate], (req: Request, res: Response) => {
 subject.get(
   '/byAllocationId/:allocRoundId',
   validateAllocRoundId,
-  [validate],
   (req: Request, res: Response) => {
     db_knex
       .select(
@@ -103,7 +102,7 @@ subject.get(
 subject.get(
   '/getNames/:allocRoundId',
   validateAllocRoundId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex
       .select('id', 'name')
@@ -120,60 +119,55 @@ subject.get(
 
 // Fetching one subject by id   A new one with Knex for a model
 // Currently no login required for seeing one subject
-subject.get(
-  '/:id',
-  validateIdObl,
-  [validate],
-  (req: Request, res: Response) => {
-    db_knex
-      .select(
-        's.id',
-        's.name',
-        's.groupSize',
-        's.groupCount',
-        db_knex.raw(
-          `TIME_FORMAT(s.sessionLength,"${timeFormatString}") as "sessionLength"`,
-        ),
-        's.sessionCount',
-        's.area',
-        's.programId',
-        'p.name AS programName',
-        's.spaceTypeId',
-        'st.name AS spaceTypeName',
-        's.allocRoundId',
-        's.isNoisy',
-      )
-      .from('Subject as s')
-      .innerJoin('Program as p', 's.programId', 'p.id')
-      .innerJoin('SpaceType as st', 's.spaceTypeId', 'st.id')
-      .where('s.id', req.params.id)
-      .then((data) => {
-        if (data.length === 1) {
-          successHandler(
-            req,
-            res,
-            data,
-            `Subject successfully fetched with id ${req.params.id}`,
-          );
-        } else {
-          requestErrorHandler(
-            req,
-            res,
-            `Non-existing subject id: ${req.params.id}`,
-          );
-        }
-      })
-      .catch((error) => {
-        dbErrorHandler(req, res, error, '');
-      });
-  },
-);
+subject.get('/:id', validateIdObl, (req: Request, res: Response) => {
+  db_knex
+    .select(
+      's.id',
+      's.name',
+      's.groupSize',
+      's.groupCount',
+      db_knex.raw(
+        `TIME_FORMAT(s.sessionLength,"${timeFormatString}") as "sessionLength"`,
+      ),
+      's.sessionCount',
+      's.area',
+      's.programId',
+      'p.name AS programName',
+      's.spaceTypeId',
+      'st.name AS spaceTypeName',
+      's.allocRoundId',
+      's.isNoisy',
+    )
+    .from('Subject as s')
+    .innerJoin('Program as p', 's.programId', 'p.id')
+    .innerJoin('SpaceType as st', 's.spaceTypeId', 'st.id')
+    .where('s.id', req.params.id)
+    .then((data) => {
+      if (data.length === 1) {
+        successHandler(
+          req,
+          res,
+          data,
+          `Subject successfully fetched with id ${req.params.id}`,
+        );
+      } else {
+        requestErrorHandler(
+          req,
+          res,
+          `Non-existing subject id: ${req.params.id}`,
+        );
+      }
+    })
+    .catch((error) => {
+      dbErrorHandler(req, res, error, '');
+    });
+});
 
 // Adding a subject/teaching using knex
 subject.post(
   '/',
   validateSubjectPost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     const subjectData = {
       name: req.body.name,
@@ -236,7 +230,7 @@ subject.post(
   '/multi/:allocRoundId',
   validateAllocRoundId,
   validateSubjectMultiPost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   async (req: Request, res: Response) => {
     const subjectData: Subject[] = [];
 
@@ -324,7 +318,7 @@ subject.post(
 subject.put(
   '/',
   validateSubjectPut,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     const editedSubject = {
       'Subject.id': req.body.id,
@@ -365,7 +359,7 @@ subject.put(
 subject.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     db_knex('Subject')
       .join('AllocRound', 'AllocRound.id', 'Subject.allocRoundId')

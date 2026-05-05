@@ -3,9 +3,8 @@ import {
   createIdValidatorChain,
   createMultiBoolValidatorChain,
   createMultiNumberValidatorChain,
-  createNameValidatorChain,
-  createNumberCountNonZeroIntegerValidatorChain,
   createNumberValidatorChain,
+  finalizeValidator,
   validateDescription,
   validateIdObl,
   validateMultiDescription,
@@ -13,23 +12,25 @@ import {
   validateNameObl,
 } from './index.js';
 
-export const validateEquipmentId = [...createIdValidatorChain('equipmentId')];
+export const validateEquipmentId = finalizeValidator(
+  createIdValidatorChain('equipmentId'),
+);
 
-export const validateEquipmentPost = [
-  ...validateNameObl,
-  ...validateDescription,
-  ...createNumberValidatorChain('priority'),
-  ...createBoolValidatorChain('isMovable'),
-];
+export const validateEquipmentPost = finalizeValidator(
+  validateNameObl,
+  validateDescription,
+  createNumberValidatorChain('priority'),
+  createBoolValidatorChain('isMovable'),
+);
 
-export const validateEquipmentPut = [
-  ...validateEquipmentPost,
-  ...validateIdObl,
-];
+export const validateEquipmentPut = finalizeValidator(
+  validateEquipmentPost,
+  validateIdObl,
+);
 
-export const validateEquipmentMultiPost = [
-  ...validateMultiNameObl,
-  ...createMultiBoolValidatorChain('isMovable'),
-  ...createMultiNumberValidatorChain('priority'),
-  ...validateMultiDescription,
-];
+export const validateEquipmentMultiPost = finalizeValidator(
+  validateMultiNameObl,
+  createMultiBoolValidatorChain('isMovable'),
+  createMultiNumberValidatorChain('priority'),
+  validateMultiDescription,
+);

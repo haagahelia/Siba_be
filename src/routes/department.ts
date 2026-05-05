@@ -13,7 +13,7 @@ import {
   validateDepartmentPost,
   validateDepartmentPut,
 } from '../validationHandler/department.js';
-import { validate, validateIdObl } from '../validationHandler/index.js';
+import { validateIdObl } from '../validationHandler/index.js';
 
 const department = express.Router();
 
@@ -43,7 +43,7 @@ department.get(
 department.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('Department')
       .select()
@@ -71,7 +71,7 @@ department.get(
 department.post(
   '/',
   validateDepartmentPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Department')
       .insert(req.body)
@@ -108,7 +108,7 @@ department.post(
 department.post(
   '/multi',
   validateDepartmentMultiPost,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Department')
       .insert(req.body)
@@ -145,7 +145,7 @@ department.post(
 department.put(
   '/',
   validateDepartmentPut,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Department')
       .where('id', req.body.id)
@@ -167,7 +167,7 @@ department.put(
 department.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin'), validate],
+  [authenticator, allowRoles('admin')],
   (req: Request, res: Response) => {
     db_knex('Department')
       .where('id', req.params.id)
@@ -194,7 +194,7 @@ department.delete(
 department.get(
   '/:departmentId/programsNamesList',
   validateDepartmentId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const id = req.params.departmentId;
     db_knex('Program')
@@ -223,7 +223,7 @@ department.get(
 department.get(
   '/:departmentId/programsFirstFiveNames',
   validateDepartmentId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const id = req.params.departmentId;
     db_knex('Program')
@@ -252,7 +252,7 @@ department.get(
 department.get(
   '/:departmentId/numberOfPrograms',
   validateDepartmentId,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const id = req.params.departmentId;
     db_knex('Program')

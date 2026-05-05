@@ -44,7 +44,7 @@ equipment.get(
 equipment.get(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .select()
@@ -67,7 +67,7 @@ equipment.get(
 equipment.post(
   '/',
   validateEquipmentPost,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     db_knex
       .insert(req.body)
@@ -95,7 +95,7 @@ equipment.post(
 equipment.post(
   '/multi',
   validateEquipmentMultiPost,
-  [authenticator, allowRoles('planner', 'admin'), validate],
+  [authenticator, allowRoles('planner', 'admin')],
   (req: Request, res: Response) => {
     db_knex
       .insert(req.body)
@@ -124,7 +124,7 @@ equipment.post(
 equipment.put(
   '/:id',
   validateEquipmentPut,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .where('id', req.body.id)
@@ -146,7 +146,7 @@ equipment.put(
 equipment.delete(
   '/:id',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner'), validate],
+  [authenticator, allowRoles('admin', 'planner')],
   (req: Request, res: Response) => {
     db_knex('Equipment')
       .where('id', req.params.id)
@@ -172,7 +172,7 @@ equipment.delete(
 equipment.get(
   '/:id/subjectCount',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const equipmentId = req.params.id;
     db_knex('SubjectEquipment')
@@ -201,7 +201,7 @@ equipment.get(
 equipment.get(
   '/:id/subjectFirstFiveNames',
   validateIdObl,
-  [authenticator, allowRoles('admin', 'planner', 'statist'), validate],
+  [authenticator, allowRoles('admin', 'planner', 'statist')],
   (req: Request, res: Response) => {
     const equipmentId = req.params.id;
     db_knex('Equipment')
