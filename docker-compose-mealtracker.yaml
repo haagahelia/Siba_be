@@ -1,0 +1,56 @@
+name: mealtracker_local
+
+services:
+  mealtracker_db:
+    image: mariadb:12
+    container_name: mealtracker_db
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: mealtracker
+      MARIADB_USER: mealtracker_user
+      MARIADB_PASSWORD: mealtracker_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./Database/SQL_Scripts/mealtracker_init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mealtracker_mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - mealtracker_network
+
+  mealtracker_be:
+    container_name: mealtracker_be
+    build: .
+    depends_on:
+      mealtracker_db:
+        condition: service_healthy
+    environment:
+      BE_API_URL_PREFIX: /api
+      BE_SERVER_PORT: 4678
+      BE_DEVELOPMENT_PHASE: "true"
+      DB_DRIVER_MODULE: mysql
+      DB_HOST: mealtracker_db
+      DB_PORT: 3306
+      MARIADB_DATABASE: mealtracker
+      MARIADB_USER: mealtracker_user
+      MARIADB_PASSWORD: mealtracker_password
+    ports:
+      - "4678:4678"
+    volumes:
+      - .:/app
+      - mealtracker_node_modules:/app/node_modules
+    networks:
+      - mealtracker_network
+
+networks:
+  mealtracker_network:
+    driver: bridge
+
+volumes:
+  mealtracker_mariadb_data:
+  mealtracker_node_modules:
